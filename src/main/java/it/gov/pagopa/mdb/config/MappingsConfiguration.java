@@ -1,4 +1,4 @@
-package it.gov.pagopa.microservice.config;
+package it.gov.pagopa.mdb.config;
 
 
 import org.modelmapper.ModelMapper;
@@ -9,11 +9,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MappingsConfiguration {
 
-  @Bean
-  ModelMapper modelMapper() {
-    ModelMapper mapper = new ModelMapper();
-    mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-    return mapper;
-  }
+    @Bean
+    ModelMapper modelMapper() {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        return mapper;
+    }
 
 }

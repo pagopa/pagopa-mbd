@@ -1,25 +1,22 @@
-# Template for Java Spring Microservice project
+# pagoPA MdB
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TODO-set-your-id&metric=alert_status)](https://sonarcloud.io/dashboard?id=TODO-set-your-id)
-[![Integration Tests](https://github.com/pagopa/<TODO-repo>/actions/workflows/integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/<TODO-repo>/actions/workflows/integration_test.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa-mdb&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa-mdb)
+[![Integration Tests](https://github.com/pagopa/pagopa-mdb/actions/workflows/integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/pagopa-mdb/actions/workflows/integration_test.yml)
 
-TODO: add a description
-
-TODO: generate a index with this tool: https://ecotrust-canada.github.io/markdown-toc/
-
-TODO: resolve all the TODOs in this template
+A microservice that permits to handle Digital Stamps (Marca da Bollo) in pagoPA platform.
 
 ---
 
 ## Api Documentation 📖
 
-See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/<TODO-repo>/main/openapi/openapi.json)
+See
+the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/<TODO-repo>/main/openapi/openapi.json)
 
 ---
 
 ## Technology Stack
 
-- Java 11
+- Java 17
 - Spring Boot
 - Spring Web
 - Hibernate
@@ -41,8 +38,6 @@ from `./docker` directory
 
 `sh ./run_docker.sh local`
 
-ℹ️ Note: for PagoPa ACR is required the login `az acr login -n <acr-name>`
-
 ---
 
 ## Develop Locally 💻
@@ -51,11 +46,11 @@ from `./docker` directory
 
 - git
 - maven
-- jdk-11
+- jdk-17
 
 ### Run the project
 
-Start the springboot application with this command:
+Start the Spring Boot application with this command:
 
 `mvn spring-boot:run -Dspring-boot.run.profiles=local`
 
