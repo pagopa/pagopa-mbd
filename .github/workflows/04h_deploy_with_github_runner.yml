@@ -9,7 +9,7 @@ on:
         type: string
 
 env:
-  APP_NAME: pagopamdb
+  APP_NAME: pagopambd
 
 
 permissions:

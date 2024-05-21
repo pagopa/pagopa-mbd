@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb.config;
+package it.gov.pagopa.mbd.config;
 
 
 import org.modelmapper.ModelMapper;

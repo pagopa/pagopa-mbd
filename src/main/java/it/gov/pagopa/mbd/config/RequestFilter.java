@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb.config;
+package it.gov.pagopa.mbd.config;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.UUID;
 
-import static it.gov.pagopa.mdb.util.Constants.HEADER_REQUEST_ID;
+import static it.gov.pagopa.mbd.util.Constants.HEADER_REQUEST_ID;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)

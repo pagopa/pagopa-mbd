@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb;
+package it.gov.pagopa.mbd;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

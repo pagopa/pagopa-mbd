@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb.model;
+package it.gov.pagopa.mbd.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;

@@ -1,7 +1,7 @@
-package it.gov.pagopa.mdb.config;
+package it.gov.pagopa.mbd.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.mdb.model.AppCorsConfiguration;
+import it.gov.pagopa.mbd.model.AppCorsConfiguration;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

@@ -1,6 +1,6 @@
-package it.gov.pagopa.mdb.config;
+package it.gov.pagopa.mbd.config;
 
-import it.gov.pagopa.mdb.exception.AppException;
+import it.gov.pagopa.mbd.exception.AppException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.StringUtils;

@@ -1,9 +1,9 @@
-package it.gov.pagopa.mdb.exception;
+package it.gov.pagopa.mbd.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
-import it.gov.pagopa.mdb.model.ProblemJson;
+import it.gov.pagopa.mbd.model.ProblemJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;

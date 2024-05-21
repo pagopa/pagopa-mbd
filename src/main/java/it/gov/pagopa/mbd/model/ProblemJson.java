@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb.model;
+package it.gov.pagopa.mbd.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -9,7 +9,7 @@ import lombok.*;
 
 /**
  * Object returned as response in case of an error.
- * <p> See {@link it.gov.pagopa.mdb.exception.ErrorHandler}
+ * <p> See {@link it.gov.pagopa.mbd.exception.ErrorHandler}
  */
 @Data
 @Builder(toBuilder = true)

@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb.exception;
+package it.gov.pagopa.mbd.exception;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;

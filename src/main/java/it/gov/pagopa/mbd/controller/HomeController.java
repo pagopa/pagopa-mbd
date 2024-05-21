@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb.controller;
+package it.gov.pagopa.mbd.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.beans.factory.annotation.Value;

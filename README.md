@@ -1,7 +1,7 @@
-# pagoPA MdB
+# pagoPA MBD
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa-mdb&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa-mdb)
-[![Integration Tests](https://github.com/pagopa/pagopa-mdb/actions/workflows/integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/pagopa-mdb/actions/workflows/integration_test.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa-mbd&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa-mbd)
+[![Integration Tests](https://github.com/pagopa/pagopa-mbd/actions/workflows/integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/pagopa-mbd/actions/workflows/integration_test.yml)
 
 A microservice that permits to handle Digital Stamps (Marca da Bollo) in pagoPA platform.
 

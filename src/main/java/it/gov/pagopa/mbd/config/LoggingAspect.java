@@ -1,7 +1,7 @@
-package it.gov.pagopa.mdb.config;
+package it.gov.pagopa.mbd.config;
 
-import it.gov.pagopa.mdb.exception.AppError;
-import it.gov.pagopa.mdb.model.ProblemJson;
+import it.gov.pagopa.mbd.exception.AppError;
+import it.gov.pagopa.mbd.model.ProblemJson;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import static it.gov.pagopa.mdb.util.CommonUtility.deNull;
+import static it.gov.pagopa.mbd.util.CommonUtility.deNull;
 
 
 @Aspect

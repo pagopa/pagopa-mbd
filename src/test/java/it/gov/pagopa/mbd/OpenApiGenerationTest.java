@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb;
+package it.gov.pagopa.mbd;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

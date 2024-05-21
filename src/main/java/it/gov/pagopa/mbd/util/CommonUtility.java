@@ -1,4 +1,4 @@
-package it.gov.pagopa.mdb.util;
+package it.gov.pagopa.mbd.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

@@ -11,9 +11,9 @@
     </parent>
 
     <groupId>it.gov.pagopa</groupId>
-    <artifactId>pagopa-mdb</artifactId>
+    <artifactId>pagopa-mbd</artifactId>
     <version>0.0.0</version>
-    <name>pagoPA MdB</name>
+    <name>pagoPA MBD</name>
     <description>A microservice that permits to handle Digital Stamps in pagoPA platform</description>
 
     <properties>

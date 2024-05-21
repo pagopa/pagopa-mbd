@@ -3,7 +3,7 @@ microservice-chart:
   nameOverride: ""
   fullnameOverride: ""
   image:
-    repository: ghcr.io/pagopa/pagopa-mdb
+    repository: ghcr.io/pagopa/pagopa-mbd
     tag: "0.0.0"
     pullPolicy: Always
   livenessProbe:
@@ -30,7 +30,7 @@ microservice-chart:
   ingress:
     create: true
     host: "weuprod.nodo.internal.platform.pagopa.it"
-    path: /pagopa-mdb(/|$)(.*)
+    path: /pagopa-mbd(/|$)(.*)
     servicePort: 8080
   serviceAccount:
     create: false
@@ -66,13 +66,13 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    WEBSITE_SITE_NAME: 'pagopamdb' # required to show cloud role name in application insights
+    WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
     ENV: 'azure-prod'
     APP_LOGGING_LEVEL: 'INFO'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
 
-    OTEL_SERVICE_NAME: pagopa-mdb
+    OTEL_SERVICE_NAME: pagopa-mbd
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=prod"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_TRACES_EXPORTER: otlp
@@ -111,7 +111,7 @@ microservice-chart:
     deployment:
       create: true
       image:
-        repository: ghcr.io/pagopa/pagopa-mdb
+        repository: ghcr.io/pagopa/pagopa-mbd
         tag: "0.0.0"
         pullPolicy: Always
       envConfig: { }
