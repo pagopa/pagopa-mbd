@@ -1,0 +1,108 @@
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+    jmx:
+      exposure:
+        include: health,info
+  info:
+    env:
+      enabled: 'true'
+  health:
+    livenessState:
+      enabled: 'true'
+    readinessState:
+      enabled: 'true'
+  endpoint:
+    health:
+      probes:
+        enabled: 'true'
+info:
+  application:
+    version: '@project.version@'
+    description: '@project.description@'
+    artifactId: '@project.artifactId@'
+  properties:
+    environment: ${ENV:azure}
+azure:
+  cosmos:
+    database: biz-events
+    uri: ${COSMOS_URI:https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/}
+    key: ${COSMOS_KEY:-}
+    populate-query-metrics: 'false'
+mbd:
+  cache:
+    refresh:
+      enabled: ${CACHE_REFRESH_ENABLED:true}
+      cron: ${CACHE_REFRESH_CRON:-}
+  rendicontazioni:
+    generate:
+      enabled: ${RENDICONTAZIONI_GENERATE_ENABLED:true}
+      cron: ${RENDICONTAZIONI_GENERATE_CRON:-}
+client:
+  cache:
+    keys: version, stations, configurations, psps, organizations
+    base-path: ${CLIENT_CACHE_HOST:none}
+    api-key: ${CLIENT_CACHE_SUBKEY:none}
+    read-timeout: ${CLIENT_CACHE_READ_TIMEOUT:5000}
+    connect-timeout: ${CLIENT_CACHE_READ_TIMEOUT:5000}
+  ftp:
+    server: ${CLIENT_FTP_SERVER:none}
+    port: ${CLIENT_FTP_PORT:none}
+    user: ${CLIENT_FTP_USER:none}
+    password: ${CLIENT_FTP_PASSWORD:none}
+spring:
+  url: jdbc:mysql://localhost:3306/library
+  username: root
+  password: your_password
+  driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+springdoc:
+  writer-with-order-by-keys: 'true'
+  writer-with-default-pretty-printer: 'true'
+log:
+  server:
+    request:
+      pretty: 'true'
+      include-client-info: 'true'
+      max-payload-length: '10000'
+      include-payload: 'true'
+      include-headers: 'true'
+    response:
+      max-payload-length: '10000'
+      pretty: 'true'
+      include-headers: 'true'
+      include-payload: 'true'
+  client:
+    cache:
+      response:
+        include-payload: 'false'
+        include-headers: 'true'
+        pretty: 'true'
+        max-payload-length: '10000'
+      request:
+        max-payload-length: '10000'
+        include-payload: 'true'
+        include-headers: 'true'
+        mask-header-name: ${CLIENT_CONFIG_API_KEY_NAME:Ocp-Apim-Subscription-Key}
+        pretty: 'true'
+logging:
+  level:
+    root: ${DEFAULT_LOGGING_LEVEL:INFO}
+    it.gov.pagopa.mbd.util:
+      interceptor.AppServerLoggingInterceptor: DEBUG
+      client.apiconfigcache.ApiConfigCacheClientLoggingInterceptor: DEBUG
+otel:
+  service:
+    name: ${OTEL_SERVICE_NAME:pagopa-wisp-converter}
+
+cors:
+  configuration: '${CORS_CONFIGURATION:''{"origins": ["*"], "methods": ["*"]}''}'
+server:
+  servlet:
+    context-path: /
+  port: '8080'

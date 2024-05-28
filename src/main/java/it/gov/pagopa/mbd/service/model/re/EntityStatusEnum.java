@@ -1,0 +1,15 @@
+package it.gov.pagopa.mbd.service.model.re;
+
+public enum EntityStatusEnum {
+
+    RPT_TROVATA,
+    DATI_RPT_ESTRATTI,
+    PD_MULTIBENEFICIARIO_ESTRATTA,
+    PD_NON_MULTIBENEFICIARIO_ESTRATTA,
+    PD_CREATA,
+    RPT_CACHE_PER_DECOUPLER_GENERATA,
+    REDIRECT_DA_CHECKOUT_OK,
+    RT_GENERATA,
+    RT_INVIATA_OK,
+    RT_INVIATA_KO
+}
