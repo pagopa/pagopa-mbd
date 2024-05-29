@@ -1,6 +1,8 @@
 package it.gov.pagopa.mbd.client;
 
-import it.gov.pagopa.mbd.util.RequestResponseLoggingProperties;
+import it.gov.pagopa.mbd.util.client.RequestResponseLoggingProperties;
+import it.gov.pagopa.mbd.util.client.apiconfigcache.ApiConfigCacheClientLoggingInterceptor;
+import it.gov.pagopa.mbd.util.client.apiconfigcache.ApiConfigCacheClientResponseErrorHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +22,6 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class APIConfigCacheClientConfig {
-    private final ReService reService;
 
     @Value("${client.cache.read-timeout}")
     private Integer readTimeout;
@@ -42,10 +43,10 @@ public class APIConfigCacheClientConfig {
 
 
     @Bean
-    public it.gov.pagopa.gen.wispconverter.client.cache.invoker.ApiClient configCacheClient() {
+    public it.gov.pagopa.gen.mbd.client.cache.invoker.ApiClient configCacheClient() {
         RequestResponseLoggingProperties clientLoggingProperties = cacheClientLoggingProperties();
 
-        ApiConfigCacheClientLoggingInterceptor clientLogging = new ApiConfigCacheClientLoggingInterceptor(clientLoggingProperties, reService);
+        ApiConfigCacheClientLoggingInterceptor clientLogging = new ApiConfigCacheClientLoggingInterceptor(clientLoggingProperties);
 
         RestTemplate restTemplate = restTemplate();
 
@@ -55,7 +56,7 @@ public class APIConfigCacheClientConfig {
 
         restTemplate.setErrorHandler(new ApiConfigCacheClientResponseErrorHandler());
 
-        it.gov.pagopa.gen.wispconverter.client.cache.invoker.ApiClient client = new it.gov.pagopa.gen.wispconverter.client.cache.invoker.ApiClient(restTemplate);
+        it.gov.pagopa.gen.mbd.client.cache.invoker.ApiClient client = new it.gov.pagopa.gen.mbd.client.cache.invoker.ApiClient(restTemplate);
         client.setBasePath(basePath);
         client.setApiKey(apiKey);
 

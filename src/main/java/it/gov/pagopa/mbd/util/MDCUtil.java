@@ -28,8 +28,8 @@ public class MDCUtil {
      private static void setMDCCloseOperation(String status, int statusCode){
         MDC.put(Constants.MDC_STATUS, status);
         MDC.put(Constants.MDC_STATUS_CODE, String.valueOf(statusCode));
-        long executionTime = CommonUtility.getTimelapse(Long.parseLong(MDC.get(Constants.MDC_START_TIME)));
-        MDC.put(Constants.MDC_EXECUTION_TIME, String.valueOf(executionTime));
+        String executionTime = CommonUtility.getExecutionTime(MDC.get(Constants.MDC_START_TIME));
+         MDC.put(Constants.MDC_EXECUTION_TIME, executionTime);
     }
 
     public static boolean hasStatus(){

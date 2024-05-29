@@ -5,7 +5,6 @@ import it.gov.pagopa.mbd.service.model.re.CategoriaEventoEnum;
 import it.gov.pagopa.mbd.service.model.re.SottoTipoEventoEnum;
 import it.gov.pagopa.mbd.util.CommonUtility;
 import it.gov.pagopa.mbd.util.Constants;
-import it.gov.pagopa.mbd.util.RequestResponseLoggingProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
@@ -47,11 +46,11 @@ public abstract class AbstractAppClientLoggingInterceptor implements ClientHttpR
     private boolean requestPretty;
     private boolean responsePretty;
 
-    public AbstractAppClientLoggingInterceptor(it.gov.pagopa.mbd.util.RequestResponseLoggingProperties clientLoggingProperties, ClientServiceEnum clientServiceEnum) {
+    public AbstractAppClientLoggingInterceptor(it.gov.pagopa.mbd.util.client.RequestResponseLoggingProperties clientLoggingProperties, ClientServiceEnum clientServiceEnum) {
         this.clientServiceEnum = clientServiceEnum;
 
         if (clientLoggingProperties != null) {
-            it.gov.pagopa.mbd.util.RequestResponseLoggingProperties.Request request = clientLoggingProperties.getRequest();
+            it.gov.pagopa.mbd.util.client.RequestResponseLoggingProperties.Request request = clientLoggingProperties.getRequest();
             if (request != null) {
                 this.requestIncludeHeaders = request.isIncludeHeaders();
                 this.requestIncludePayload = request.isIncludePayload();
