@@ -30,7 +30,6 @@ public class ScheduledJobsConfig {
 
 
     @Scheduled(cron = "${mbd.rendicontazioni.genera.cron:-}")
-    @EventListener(ApplicationReadyEvent.class)
     public void generateReporting() {
         LocalDate date = LocalDate.now();
         log.info("[Scheduled] Starting genera rendicontazioni mbd for {}", date);

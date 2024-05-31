@@ -10,7 +10,7 @@ import org.springframework.data.annotation.Id;
 
 import java.util.List;
 
-@Container(containerName = "items")
+@Container(containerName = "biz-events")
 @Data
 @Builder(toBuilder = true)
 public class BizEventEntity {
@@ -24,6 +24,8 @@ public class BizEventEntity {
     private String version;
 
     private String receiptId;
+
+    private Psp psp;
 
     private Long timestamp;
 

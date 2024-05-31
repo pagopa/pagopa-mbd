@@ -28,7 +28,7 @@ info:
     environment: ${ENV:azure}
 azure:
   cosmos:
-    database: biz-events
+    database: db
     uri: ${COSMOS_URI:https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/}
     key: ${COSMOS_KEY:-}
     populate-query-metrics: 'false'
@@ -38,16 +38,17 @@ mbd:
       enabled: ${CACHE_REFRESH_ENABLED:true}
       cron: ${CACHE_REFRESH_CRON:-}
   rendicontazioni:
+    filePath: /tmp
     generate:
       enabled: ${RENDICONTAZIONI_GENERATE_ENABLED:true}
       cron: ${RENDICONTAZIONI_GENERATE_CRON:-}
 client:
   cache:
-    keys: version, stations, configurations, psps, organizations
-    base-path: ${CLIENT_CACHE_HOST:none}
+    url: ${CLIENT_CACHE_URL:none}
     api-key: ${CLIENT_CACHE_SUBKEY:none}
     read-timeout: ${CLIENT_CACHE_READ_TIMEOUT:5000}
     connect-timeout: ${CLIENT_CACHE_READ_TIMEOUT:5000}
+    keys: version, stations, configurations, psps, creditorInstitutions
   ftp:
     enabled: ${CLIENT_FTP_ENABLED:false}
     host: ${CLIENT_FTP_HOST:none}
@@ -97,6 +98,10 @@ log:
         pretty: 'true'
 logging:
   level:
+    com.azure.cosmos.implementation.SqlQuerySpecLogger: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type: TRACE
+    org.springframework.web: DEBUG
     root: ${DEFAULT_LOGGING_LEVEL:INFO}
     it.gov.pagopa.mbd.util:
       interceptor.AppServerLoggingInterceptor: DEBUG

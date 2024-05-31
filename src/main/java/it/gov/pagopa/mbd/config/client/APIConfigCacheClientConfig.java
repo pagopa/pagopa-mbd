@@ -1,4 +1,4 @@
-package it.gov.pagopa.mbd.client;
+package it.gov.pagopa.mbd.config.client;
 
 import it.gov.pagopa.mbd.util.client.RequestResponseLoggingProperties;
 import it.gov.pagopa.mbd.util.client.apiconfigcache.ApiConfigCacheClientLoggingInterceptor;
@@ -29,8 +29,8 @@ public class APIConfigCacheClientConfig {
     @Value("${client.cache.connect-timeout}")
     private Integer connectTimeout;
 
-    @Value("${client.cache.base-path}")
-    private String basePath;
+    @Value("${client.cache.url}")
+    private String url;
 
     @Value("${client.cache.api-key}")
     private String apiKey;
@@ -57,7 +57,7 @@ public class APIConfigCacheClientConfig {
         restTemplate.setErrorHandler(new ApiConfigCacheClientResponseErrorHandler());
 
         it.gov.pagopa.gen.mbd.client.cache.invoker.ApiClient client = new it.gov.pagopa.gen.mbd.client.cache.invoker.ApiClient(restTemplate);
-        client.setBasePath(basePath);
+        client.setBasePath(url);
         client.setApiKey(apiKey);
 
         return client;

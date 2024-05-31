@@ -1,4 +1,4 @@
-package it.gov.pagopa.mbd.config;
+package it.gov.pagopa.mbd.config.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -8,7 +8,7 @@ import org.springframework.integration.ftp.session.DefaultFtpSessionFactory;
 
 @Configuration
 @ConditionalOnProperty(prefix = "client.ftp", name = "enabled")
-public class FTPConfiguration {
+public class FTPConfig {
 
     @Value("${client.ftp.host}")
     private String host;

@@ -11,6 +11,7 @@ import it.gov.pagopa.mbd.service.GenerateReportingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -18,26 +19,26 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
-@Controller
-@RequestMapping
-@Validated
-@RequiredArgsConstructor
+@RestController
 @Tag(name = "Recovery", description = "Recover one or more days of unprocessed MBD flows")
+@Validated
 @Slf4j
+@RequiredArgsConstructor
 public class RecoveryController {
 
-    private GenerateReportingService generateReportingService;
+    private final GenerateReportingService generateReportingService;
 
     @Operation(summary = "", description = "", security = {@SecurityRequirement(name = "ApiKey")}, tags = {"Redirect"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Recovery FdR MDB taken", content = @Content(schema = @Schema()))
     })
-    @PostMapping(value = "/")
+    @PatchMapping(value = "/recover", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity recover(
                            @RequestParam("from") LocalDate from,
                            @RequestParam("to") LocalDate to) {
-        generateReportingService.recovery(from, to);
+//        generateReportingService.recovery(from, to);
+        generateReportingService.execute(LocalDate.now());
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
