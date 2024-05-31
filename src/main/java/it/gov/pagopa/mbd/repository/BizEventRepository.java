@@ -11,8 +11,10 @@ import java.util.List;
 @Repository
 public interface BizEventRepository extends CosmosRepository<BizEventEntity, String> {
 
-    @Query("SELECT be FROM BizEventEntity be JOIN be.transferList tl WHERE be.timestamp >= :dateFrom and be.timestamp <= :dateTO")
-    List<BizEventEntity> findMBDAttachment(@Param("dateFrom") Long dateFrom, @Param("dateTo") Long dateTo);
+//    @Query("SELECT c FROM BizEventEntity c JOIN c.transferList tl WHERE tl.MBDAttachment != null and c.timestamp >= @dateFrom and c.timestamp <= @dateTo")
+//    @Query("select * from c join tl in c.transferList where tl.MBDAttachment != null and c.timestamp >= @dateFrom and c.timestamp <= @dateTo")
+    @Query("select * from c join tl in c.transferList where tl.MBDAttachment != null and c.timestamp >= 1714407502824")
+    List<BizEventEntity> getBizEventsByDateFromAndDateTo(@Param("dateFrom") Long dateFrom, @Param("dateTo") Long dateTo);
 
     @Override
     List<BizEventEntity> findAll();

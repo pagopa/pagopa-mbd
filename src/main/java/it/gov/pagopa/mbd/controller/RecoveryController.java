@@ -37,8 +37,8 @@ public class RecoveryController {
     public ResponseEntity recover(
                            @RequestParam("from") LocalDate from,
                            @RequestParam("to") LocalDate to) {
-//        generateReportingService.recovery(from, to);
-        generateReportingService.execute(LocalDate.now());
+        generateReportingService.recovery(from, to);
+//        generateReportingService.execute(LocalDate.now());
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
