@@ -13,7 +13,7 @@ public interface BizEventRepository extends CosmosRepository<BizEventEntity, Str
 
 //    @Query("SELECT c FROM BizEventEntity c JOIN c.transferList tl WHERE tl.MBDAttachment != null and c.timestamp >= @dateFrom and c.timestamp <= @dateTo")
 //    @Query("select * from c join tl in c.transferList where tl.MBDAttachment != null and c.timestamp >= @dateFrom and c.timestamp <= @dateTo")
-    @Query("select * from c join tl in c.transferList where tl.MBDAttachment != null and c.timestamp >= 1714407502824")
+    @Query("select c from BizEventEntity c join tl in c.transferList where tl.MBDAttachment != null and c.timestamp >= 1714407502824")
     List<BizEventEntity> getBizEventsByDateFromAndDateTo(@Param("dateFrom") Long dateFrom, @Param("dateTo") Long dateTo);
 
     @Override
