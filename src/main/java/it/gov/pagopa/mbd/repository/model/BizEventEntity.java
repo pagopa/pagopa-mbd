@@ -1,26 +1,22 @@
 package it.gov.pagopa.mbd.repository.model;
 
 import com.azure.spring.data.cosmos.core.mapping.Container;
-import com.azure.spring.data.cosmos.core.mapping.PartitionKey;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 
 import java.util.List;
 
-@Container(containerName = "biz-events")
 @Data
+@Container(containerName = "biz-events")
 @Builder(toBuilder = true)
 public class BizEventEntity {
 
     @Id
     private String id;
 
-    @PartitionKey
-    private String partitionKey;
-
+    @Version
     private String version;
 
     private String receiptId;
@@ -29,5 +25,6 @@ public class BizEventEntity {
 
     private Long timestamp;
 
+    @Builder.Default
     private List<Transfer> transferList;
 }

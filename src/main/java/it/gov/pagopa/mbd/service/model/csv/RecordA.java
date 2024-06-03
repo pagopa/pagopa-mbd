@@ -7,7 +7,7 @@ import lombok.*;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class RecordA implements Record{
 
     private static final String TIPO_RECORD = "A";
@@ -23,18 +23,18 @@ public class RecordA implements Record{
     private static final Integer SPAZIO_DISPONIBILE_LEN = 1448;
     private static final Integer CARATTERE_CONTROLLO_CHIUSURA_LEN = 1;
 
-    private String tipoRecord = RecordA.TIPO_RECORD;
-    private String codiceFlusso = RecordA.CODICE_FLUSSO;
+    private String tipoRecord = TIPO_RECORD;
+    private String codiceFlusso = CODICE_FLUSSO;
     private String codiceFiscaleMittente;
     private String codiceFiscalePa;
     private String dataInvioFlussoMarcheDaBollo;
     private Long progressivoInvioFlussoMarcheDigitali;
     private String spazioDisponibile;
-    private String carattereDiControlloChiusuraRecord = RecordA.CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD;
+    private String carattereDiControlloChiusuraRecord = CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD;
 
     public String toLine() {
-        return CsvUtils.toFixedLength(tipoRecord, TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                CsvUtils.toFixedLength(codiceFlusso, CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+        return CsvUtils.toFixedLength(getTipoRecord(), TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(getCodiceFlusso(), CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(codiceFiscaleMittente, CODICE_FISCALE_MITTENTE_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(codiceFiscalePa, CODICE_FISCALE_PA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(dataInvioFlussoMarcheDaBollo, DATA_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +

@@ -70,16 +70,18 @@ public class GenerateReportingService {
 
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(rendicontazioneBolloDateFormat);
 
-        List<BizEventEntity> bizEvents = bizEventRepository.getBizEventsByDateFromAndDateTo(dateFrom, dateTo);
+        Map<String, CreditorInstitutionDto> organizations = configCacheService.getConfigData().getCreditorInstitutions();
 
-        if( !bizEvents.isEmpty() ) {
-            Map<String, CreditorInstitutionDto> organizations = configCacheService.getConfigData().getCreditorInstitutions();
-            AtomicInteger progressivo = new AtomicInteger(0);
-            Map<String, PaymentServiceProviderDto> psps = configCacheService.getConfigData().getPsps();
-            organizations.values().forEach(pa -> {
+        organizations.values().forEach(pa -> {
+            List<BizEventEntity> bizEvents = bizEventRepository.getBizEventsByDateFromAndDateToAndEC(dateFrom, dateTo, pa.getCreditorInstitutionCode());
+
+            if (!bizEvents.isEmpty()) {
+                AtomicInteger progressivo = new AtomicInteger(0);
+                Map<String, PaymentServiceProviderDto> psps = configCacheService.getConfigData().getPsps();
+
                 LocalDateTime now = LocalDateTime.now();
                 String dataInvioFlusso = now.format(dateFormat);
-                log.debug("PA:{} - Creazione RecordA", pa.getCreditorInstitutionCode());
+                log.debug("PA:{} - Progressivo:{} - Creazione RecordA", pa.getCreditorInstitutionCode(), progressivo);
                 RecordA recordA = RecordA
                         .builder()
                         .codiceFiscaleMittente(mittenteCodiceFiscale)
@@ -88,14 +90,14 @@ public class GenerateReportingService {
                         .progressivoInvioFlussoMarcheDigitali(progressivo.longValue())
                         .build();
 
-                log.debug("PA:{} - Creazione RecordM", pa.getCreditorInstitutionCode());
+                log.debug("PA:{} - Progressivo:{} - Creazione RecordM", pa.getCreditorInstitutionCode(), progressivo);
                 RecordM recordM = new RecordM();
                 recordM.setCodiceFiscaleMittente(mittenteCodiceFiscale);
                 recordM.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
                 recordM.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
                 recordM.setProgressivoInvioFlussoMarcheDigitali(progressivo.longValue());
                 recordM.setDenominazionePa(pa.getBusinessName());
-                if( pa.getAddress() != null ) {
+                if (pa.getAddress() != null) {
                     recordM.setComuneDomicilioFiscalePa(pa.getAddress().getCity());
                     recordM.setSiglaDellaProvinciaDelDomicilioFiscalePa(pa.getAddress().getLocation());
                     recordM.setCAPDelDomicilioFiscalePa(pa.getAddress().getZipCode());
@@ -107,7 +109,7 @@ public class GenerateReportingService {
                 recordM.setCAPDelDomicilioFiscaleIntermediario(Long.getLong(intermediarioCap));
                 recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario(intermediarioIndirizzo);
 
-                log.debug("PA:{} - Creazione Lista RecordV", pa.getCreditorInstitutionCode());
+                log.debug("PA:{} - Progressivo:{} - Creazione Lista RecordV", pa.getCreditorInstitutionCode());
                 List<RecordV> recordsV = bizEvents.stream().map(b -> {
                     RecordV recordV = new RecordV();
                     recordV.setCodiceFiscaleMittente(mittenteCodiceFiscale);
@@ -122,7 +124,7 @@ public class GenerateReportingService {
                     return recordV;
                 }).toList();
 
-                log.debug("PA:{} - Creazione RecordZ", pa.getCreditorInstitutionCode());
+                log.debug("PA:{} - Progressivo:{} - Creazione RecordZ", pa.getCreditorInstitutionCode(), progressivo);
                 RecordZ recordZ = new RecordZ();
                 recordZ.setCodiceFiscaleMittente(mittenteCodiceFiscale);
                 recordZ.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
@@ -151,14 +153,11 @@ public class GenerateReportingService {
 //            progressive = progressivo,
 //            rendicontazioneBolloStatus = RendicontazioneBolloStatus.STORED
 //            )
-//              _ = log.debug(s"PA:$idPa - Progressivo:$progressivo - Salvataggio RendicontazioneBollo e update RTVersamentiBollo")
-//              (_, _) <- offlineRepository.saveAllRendicontazioneBollo(bf, rb, bolliPsp.map(_._3.id))
+                log.debug("PA:{} - Progressivo:{} - Scrittura file", pa.getCreditorInstitutionCode(), progressivo);
                 writeFile(fileSystemPath + "/" + fileName, contenutoFileBytes);
-            });
-        }
+            }
+        });
 
-        //check filesystem
-//      checkFileSystem(request.key.isEmpty)
     }
 
     @Async
