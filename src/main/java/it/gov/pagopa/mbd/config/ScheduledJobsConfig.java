@@ -33,7 +33,7 @@ public class ScheduledJobsConfig {
     public void generateReporting() {
         LocalDate date = LocalDate.now();
         log.info("[Scheduled] Starting genera rendicontazioni mbd for {}", date);
-        generateReportingService.execute(date);
+        generateReportingService.execute(date, new String[0]);
     }
 
     @Scheduled(cron = "${mbd.cache.refresh.cron:-}")

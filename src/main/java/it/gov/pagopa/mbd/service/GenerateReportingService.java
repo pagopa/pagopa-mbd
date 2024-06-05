@@ -17,17 +17,30 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static it.gov.pagopa.mbd.util.CsvUtils.writeFile;
 
 @Service
 @CacheConfig(cacheNames="cache")
@@ -51,7 +64,7 @@ public class GenerateReportingService {
     @Value("mbd.rendicontazioni.filePath")
     private String fileSystemPath;
 
-    public void execute(LocalDate date) {
+    public void execute(LocalDate date, String[] organizationsRequest) {
         log.info("generate reporting MBD for {}", date);
 
         long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
@@ -69,117 +82,127 @@ public class GenerateReportingService {
         String codiceTrasmissivo = CommonUtility.getConfigKeyValueCache(configCacheService.getConfigData().getConfigurations(), "rendicontazioni-bollo.codiceIdentificativo.1");
 
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(rendicontazioneBolloDateFormat);
-
         Map<String, CreditorInstitutionDto> organizations = configCacheService.getConfigData().getCreditorInstitutions();
 
-        organizations.values().forEach(pa -> {
-            List<BizEventEntity> bizEvents = bizEventRepository.getBizEventsByDateFromAndDateToAndEC(dateFrom, dateTo, pa.getCreditorInstitutionCode());
+        List<CreditorInstitutionDto> ecs;
+        if( organizationsRequest == null || organizationsRequest.length == 0 ) {
+            ecs = organizations.values().stream().toList();
+        } else {
+            ecs = organizations.values().stream()
+                    .filter(o -> Arrays.stream(organizationsRequest)
+                            .anyMatch(or -> or.equals(o.getCreditorInstitutionCode())))
+                    .collect(Collectors.toList());
+        }
 
-            if (!bizEvents.isEmpty()) {
-                AtomicInteger progressivo = new AtomicInteger(0);
-                Map<String, PaymentServiceProviderDto> psps = configCacheService.getConfigData().getPsps();
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder;
 
-                LocalDateTime now = LocalDateTime.now();
-                String dataInvioFlusso = now.format(dateFormat);
-                log.debug("PA:{} - Progressivo:{} - Creazione RecordA", pa.getCreditorInstitutionCode(), progressivo);
-                RecordA recordA = RecordA
-                        .builder()
-                        .codiceFiscaleMittente(mittenteCodiceFiscale)
-                        .codiceFiscalePa(pa.getCreditorInstitutionCode())
-                        .dataInvioFlussoMarcheDaBollo(dataInvioFlusso)
-                        .progressivoInvioFlussoMarcheDigitali(progressivo.longValue())
-                        .build();
+        try {
+            builder = factory.newDocumentBuilder();
 
-                log.debug("PA:{} - Progressivo:{} - Creazione RecordM", pa.getCreditorInstitutionCode(), progressivo);
-                RecordM recordM = new RecordM();
-                recordM.setCodiceFiscaleMittente(mittenteCodiceFiscale);
-                recordM.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
-                recordM.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
-                recordM.setProgressivoInvioFlussoMarcheDigitali(progressivo.longValue());
-                recordM.setDenominazionePa(pa.getBusinessName());
-                if (pa.getAddress() != null) {
-                    recordM.setComuneDomicilioFiscalePa(pa.getAddress().getCity());
-                    recordM.setSiglaDellaProvinciaDelDomicilioFiscalePa(pa.getAddress().getLocation());
-                    recordM.setCAPDelDomicilioFiscalePa(pa.getAddress().getZipCode());
-                    recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscalePa(pa.getAddress().getTaxDomicile());
+            for (CreditorInstitutionDto pa : ecs) {
+                List<BizEventEntity> bizEvents = bizEventRepository.getBizEventsByDateFromAndDateToAndEC(dateFrom, dateTo, pa.getCreditorInstitutionCode());
+
+                if (!bizEvents.isEmpty()) {
+                    AtomicInteger progressivo = new AtomicInteger(0);
+
+                    LocalDateTime now = LocalDateTime.now();
+                    String dataInvioFlusso = now.format(dateFormat);
+                    log.debug("PA:{} - Progressivo:{} - Creazione RecordA", pa.getCreditorInstitutionCode(), progressivo);
+                    RecordA recordA = RecordA
+                            .builder()
+                            .codiceFiscaleMittente(mittenteCodiceFiscale)
+                            .codiceFiscalePa(pa.getCreditorInstitutionCode())
+                            .dataInvioFlussoMarcheDaBollo(dataInvioFlusso)
+                            .progressivoInvioFlussoMarcheDigitali(progressivo.longValue())
+                            .build();
+
+                    log.debug("PA:{} - Progressivo:{} - Creazione RecordM", pa.getCreditorInstitutionCode(), progressivo);
+                    RecordM recordM = new RecordM();
+                    recordM.setCodiceFiscaleMittente(mittenteCodiceFiscale);
+                    recordM.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
+                    recordM.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
+                    recordM.setProgressivoInvioFlussoMarcheDigitali(progressivo.longValue());
+                    recordM.setDenominazionePa(pa.getBusinessName());
+                    if (pa.getAddress() != null) {
+                        recordM.setComuneDomicilioFiscalePa(pa.getAddress().getCity());
+                        recordM.setSiglaDellaProvinciaDelDomicilioFiscalePa(pa.getAddress().getLocation());
+                        recordM.setCAPDelDomicilioFiscalePa(pa.getAddress().getZipCode());
+                        recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscalePa(pa.getAddress().getTaxDomicile());
+                    }
+                    recordM.setDemoninazioneIntermediario(intermediarioDenominazione);
+                    recordM.setComuneDomicilioFiscaleIntermediario(intermediarioComune);
+                    recordM.setSiglaDellaProvinciaDelDomicilioFiscaleIntermediario(intermediarioSiglaProvincia);
+                    recordM.setCAPDelDomicilioFiscaleIntermediario(Long.getLong(intermediarioCap));
+                    recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario(intermediarioIndirizzo);
+
+                    log.debug("PA:{} - Progressivo:{} - Creazione Lista RecordV", pa.getCreditorInstitutionCode(), progressivo);
+
+                    List<String> mbdAttachments = bizEvents.stream().flatMap(b -> b.getTransferList().stream().map(Transfer::getMBDAttachment)).toList();
+
+                    List<RecordV> recordsV = mbdAttachments.stream().map(b -> {
+                        RecordV recordV = new RecordV();
+                        try {
+                            InputSource source = new InputSource(new StringReader(b));
+                            XPath xpath = XPathFactory.newInstance()
+                                    .newXPath();
+                            Object marcaDaBollo = xpath.evaluate("/marcaDaBollo", source, XPathConstants.NODE);
+                            String IUBD = xpath.evaluate("IUBD", marcaDaBollo);
+                            String PSP = xpath.evaluate("PSP", marcaDaBollo);
+                            String oraAcquisto = xpath.evaluate("OraAcquisto", marcaDaBollo);
+
+                            recordV.setCodiceFiscaleMittente(mittenteCodiceFiscale);
+                            recordV.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
+                            recordV.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
+                            recordV.setProgressivoInvioFlussoMarcheDigitali(progressivo.longValue());
+                            recordV.setImprontaDocumentoInformatico(List.of(PSP));
+                            recordV.setIUBD(List.of(IUBD));
+                            recordV.setCodiceFiscalePsp(List.of(PSP));
+                            recordV.setDenominazionePsp(List.of(PSP));
+                            recordV.setDataDiVendita(List.of(oraAcquisto));
+                            return recordV;
+                        } catch (XPathExpressionException e) {
+                            return null;
+                        }
+                    }).toList();
+
+                    log.debug("PA:{} - Progressivo:{} - Creazione RecordZ", pa.getCreditorInstitutionCode(), progressivo);
+                    RecordZ recordZ = new RecordZ();
+                    recordZ.setCodiceFiscaleMittente(mittenteCodiceFiscale);
+                    recordZ.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
+                    recordZ.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
+                    recordZ.setProgressivoInvioFlussoMarcheDigitali(progressivo.longValue());
+                    recordZ.setNumeroRecordDiTipoV((long) recordsV.size());
+
+                    String contenutoFile = recordA.toLine() + "\n" + recordM.toLine() + "\n" + recordsV.stream().map(RecordV::toLine) + "\n" + recordZ.toLine();
+                    String dayOfYear = String.valueOf(now.getDayOfYear());
+                    String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
+
+                    String fileName = codiceTrasmissivo + "AT" + CODICE_FLUSSO_NORMALE + "." + pa.getCreditorInstitutionCode() + ".D" + now.getYear() + paddedDayOfYear + "T" + now.format(formatterHours);
+
+                    log.debug("PA:{} - Nome file:{}", pa.getCreditorInstitutionCode(), fileName);
+                    log.debug("PA:{} - Creazione BinaryFile:{}", pa.getCreditorInstitutionCode(), fileName);
+                    byte[] contenutoFileBytes = contenutoFile.getBytes(StandardCharsets.UTF_8);
+
+                    log.debug("PA:{} - Progressivo:{} - Scrittura file:{}", pa.getCreditorInstitutionCode(), progressivo, fileName);
+                    writeFile(fileSystemPath + "/" + fileName, contenutoFileBytes);
                 }
-                recordM.setDemoninazioneIntermediario(intermediarioDenominazione);
-                recordM.setComuneDomicilioFiscaleIntermediario(intermediarioComune);
-                recordM.setSiglaDellaProvinciaDelDomicilioFiscaleIntermediario(intermediarioSiglaProvincia);
-                recordM.setCAPDelDomicilioFiscaleIntermediario(Long.getLong(intermediarioCap));
-                recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario(intermediarioIndirizzo);
-
-                log.debug("PA:{} - Progressivo:{} - Creazione Lista RecordV", pa.getCreditorInstitutionCode());
-                List<RecordV> recordsV = bizEvents.stream().map(b -> {
-                    RecordV recordV = new RecordV();
-                    recordV.setCodiceFiscaleMittente(mittenteCodiceFiscale);
-                    recordV.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
-                    recordV.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
-                    recordV.setProgressivoInvioFlussoMarcheDigitali(progressivo.longValue());
-                    recordV.setImprontaDocumentoInformatico(b.getTransferList().stream().map(Transfer::getMBDAttachment).toList());
-//                recordV.setIUBD(b.getTransferList().stream().map(Transfer::get));//TODO: da dove lo si recupera?
-//                recordV.setCodiceFiscalePsp(psps.get(b.getPsp().getIdPsp()).getTaxCode());
-//                recordV.setDenominazionePsp();
-//                recordV.setDataDiVendita();
-                    return recordV;
-                }).toList();
-
-                log.debug("PA:{} - Progressivo:{} - Creazione RecordZ", pa.getCreditorInstitutionCode(), progressivo);
-                RecordZ recordZ = new RecordZ();
-                recordZ.setCodiceFiscaleMittente(mittenteCodiceFiscale);
-                recordZ.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
-                recordZ.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
-                recordZ.setProgressivoInvioFlussoMarcheDigitali(progressivo.longValue());
-                recordZ.setNumeroRecordDiTipoV((long) recordsV.size());
-
-                String contenutoFile = recordA.toLine() + "\n" + recordM.toLine() + "\n" + recordsV.stream().map(RecordV::toLine) + "\n" + recordZ.toLine();
-                String dayOfYear = String.valueOf(now.getDayOfYear());
-                String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
-
-                String fileName = codiceTrasmissivo + "AT" + CODICE_FLUSSO_NORMALE + "." + pa.getCreditorInstitutionCode() + ".D" + now.getYear() + paddedDayOfYear + "T" + now.format(formatterHours);
-                log.debug("PA:{} - Nome file:{}", pa.getCreditorInstitutionCode(), fileName);
-                log.debug("PA:{} - Creazione BinaryFile:{}", pa.getCreditorInstitutionCode(), fileName);
-                byte[] contenutoFileBytes = contenutoFile.getBytes(StandardCharsets.UTF_8);
-//            contenutoFileBytes = contenutoFile.getBytes(Constant.UTF_8)
-//            _ = log.debug(s"PA:$idPa - Creazione RendicontazioneBollo  e BinaryFile - Progressivo:$progressivo")
-//            bf = BinaryFile(0, contenutoFile.length, Some(contenutoFileBytes), None, None)
-//            rb = RendicontazioneBollo(
-//            0,
-//            idPa = Some(pa.creditorInstitutionCode),
-//            timestampInserimento = now,
-//            timestampStartOfTheWeek = startWeek,
-//            timestampEndOfTheWeek = endWeek,
-//            fileName = filename,
-//            progressive = progressivo,
-//            rendicontazioneBolloStatus = RendicontazioneBolloStatus.STORED
-//            )
-                log.debug("PA:{} - Progressivo:{} - Scrittura file", pa.getCreditorInstitutionCode(), progressivo);
-                writeFile(fileSystemPath + "/" + fileName, contenutoFileBytes);
             }
-        });
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
     @Async
-    public void recovery(LocalDate from, LocalDate to) {
+    public void recovery(LocalDate from, LocalDate to, String[] organizations) {
         log.info("recovery rendicontazioni MBD dal {} al {}", from, to);
         LocalDate date = from;
         do {
-            execute(date);
+            execute(date, organizations);
             date = date.plusDays(1);
         } while( date.isBefore(to) );
 
-    }
-
-    private void writeFile(String filename, byte[] s) {
-        try {
-            File file = new File(filename);
-            BufferedOutputStream bw = new BufferedOutputStream(new FileOutputStream(file));
-            bw.write(s);
-            bw.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
 }

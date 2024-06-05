@@ -36,8 +36,9 @@ public class RecoveryController {
     @ResponseBody
     public ResponseEntity recover(
                            @RequestParam("from") LocalDate from,
-                           @RequestParam("to") LocalDate to) {
-        generateReportingService.recovery(from, to);
+                           @RequestParam("to") LocalDate to,
+                           @RequestParam(value="organizations", required = false) String[] organizations) {
+        generateReportingService.recovery(from, to, organizations);
 //        generateReportingService.execute(LocalDate.now());
         return new ResponseEntity(HttpStatus.CREATED);
     }
