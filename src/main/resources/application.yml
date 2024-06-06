@@ -38,7 +38,7 @@ mbd:
       enabled: ${CACHE_REFRESH_ENABLED:true}
       cron: ${CACHE_REFRESH_CRON:-}
   rendicontazioni:
-    filePath: /tmp
+    filePath: ${HOME}
     generate:
       enabled: ${RENDICONTAZIONI_GENERATE_ENABLED:true}
       cron: ${RENDICONTAZIONI_GENERATE_CRON:-}

@@ -23,24 +23,21 @@ public class RecordA implements Record{
     private static final Integer SPAZIO_DISPONIBILE_LEN = 1448;
     private static final Integer CARATTERE_CONTROLLO_CHIUSURA_LEN = 1;
 
-    private String tipoRecord = TIPO_RECORD;
-    private String codiceFlusso = CODICE_FLUSSO;
     private String codiceFiscaleMittente;
     private String codiceFiscalePa;
     private String dataInvioFlussoMarcheDaBollo;
     private Long progressivoInvioFlussoMarcheDigitali;
     private String spazioDisponibile;
-    private String carattereDiControlloChiusuraRecord = CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD;
 
     public String toLine() {
-        return CsvUtils.toFixedLength(getTipoRecord(), TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                CsvUtils.toFixedLength(getCodiceFlusso(), CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+        return CsvUtils.toFixedLength(TIPO_RECORD, TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(CODICE_FLUSSO, CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(codiceFiscaleMittente, CODICE_FISCALE_MITTENTE_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(codiceFiscalePa, CODICE_FISCALE_PA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(dataInvioFlussoMarcheDaBollo, DATA_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(progressivoInvioFlussoMarcheDigitali, PROG_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
                 CsvUtils.toFixedLength(spazioDisponibile, SPAZIO_DISPONIBILE_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                CsvUtils.toFixedLength(carattereDiControlloChiusuraRecord, CARATTERE_CONTROLLO_CHIUSURA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ');
+                CsvUtils.toFixedLength(CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD, CARATTERE_CONTROLLO_CHIUSURA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ');
     }
 
 }

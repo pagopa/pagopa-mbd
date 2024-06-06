@@ -33,8 +33,6 @@ public class RecordM implements Record{
     private static final Integer FILLER_LEN = 1174;
     private static final Integer CARATTERE_CONTROLLO_CHIUSURA_LEN = 1;
 
-    private String tipoRecord = RecordM.TIPO_RECORD;
-    private String codiceFlusso = RecordM.CODICE_FLUSSO;
     private String codiceFiscaleMittente;
     private String codiceFiscalePa;
     private String dataInvioFlussoMarcheDigitali;
@@ -50,12 +48,10 @@ public class RecordM implements Record{
     private Long CAPDelDomicilioFiscaleIntermediario;
     private String indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario;
     private String filler;
-    private String carattereDiControlloChiusuraRecord= RecordM.CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD;    
-    
 
     public String toLine() {
-        return CsvUtils.toFixedLength(tipoRecord, TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                    CsvUtils.toFixedLength(codiceFlusso, CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+        return CsvUtils.toFixedLength(TIPO_RECORD, TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                    CsvUtils.toFixedLength(CODICE_FLUSSO, CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(codiceFiscaleMittente, CODICE_FISCALE_MITTENTE_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(codiceFiscalePa, CODICE_FISCALE_PA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(dataInvioFlussoMarcheDigitali, DATA_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
@@ -71,7 +67,7 @@ public class RecordM implements Record{
                     CsvUtils.toFixedLength(CAPDelDomicilioFiscaleIntermediario, CAP_INT_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
                     CsvUtils.toFixedLength(indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario, INDIRIZZO_INT_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(filler, FILLER_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                    CsvUtils.toFixedLength(carattereDiControlloChiusuraRecord, CARATTERE_CONTROLLO_CHIUSURA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ');
+                    CsvUtils.toFixedLength(CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD, CARATTERE_CONTROLLO_CHIUSURA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ');
     }
 
 

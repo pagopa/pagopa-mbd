@@ -14,13 +14,18 @@ public class CsvUtils {
 
     public static String toFixedLength(Object record, Integer length, RecordAlignEnum align, char separator) {
         String recordString;
-        if (record instanceof String ) {
-            recordString = ((String) record);
-        } else if (record instanceof Long ) {
-            recordString = ((Long) record).toString();
+        if(record == null) {
+            recordString = "";
         } else {
-            recordString = record.toString();
+            if (record instanceof String ) {
+                recordString = ((String) record);
+            } else if (record instanceof Long ) {
+                recordString = ((Long) record).toString();
+            } else {
+                recordString = record.toString();
+            }
         }
+
         if( align.equals(ALIGN_LEFT) ) {
             return Strings.padEnd(recordString, length, separator).substring(0, length);
         } else {

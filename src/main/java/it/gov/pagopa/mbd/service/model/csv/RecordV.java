@@ -33,44 +33,35 @@ public class RecordV implements Record{
     private static final Integer FILLER_LEN = 57;
     private static final Integer CARATTERE_CONTROLLO_CHIUSURA_LEN = 1;
 
-    private String tipoRecord = RecordV.TIPO_RECORD;
-    private String codiceFlusso = RecordV.CODICE_FLUSSO;
     private String codiceFiscaleMittente;
     private String codiceFiscalePa;
     private String dataInvioFlussoMarcheDigitali;
     private Long progressivoInvioFlussoMarcheDigitali;
-    private String tipoModello = RecordV.TIPO_MODELLO;
-    private List<String> improntaDocumentoInformatico;
-    private List<String> IUBD;
-    private List<String> codiceFiscalePsp;
-    private List<String> denominazionePsp;
-    private List<String> dataDiVendita;
+    private String improntaDocumentoInformatico;
+    private String IUBD;
+    private String codiceFiscalePsp;
+    private String denominazionePsp;
+    private String dataDiVendita;
     private String filler;
-    private String carattereDiControlloChiusuraRecord = RecordV.CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD;
 
     public String toLine() {
-        AtomicInteger index = new AtomicInteger(0);
-        StringBuilder line = new StringBuilder(CsvUtils.toFixedLength(tipoRecord, TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                CsvUtils.toFixedLength(codiceFlusso, CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+        StringBuilder line = new StringBuilder(CsvUtils.toFixedLength(TIPO_RECORD, TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(CODICE_FLUSSO, CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(codiceFiscaleMittente, CODICE_FISCALE_MITTENTE_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(codiceFiscalePa, CODICE_FISCALE_PA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(dataInvioFlussoMarcheDigitali, DATA_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(progressivoInvioFlussoMarcheDigitali, PROG_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
-                CsvUtils.toFixedLength(tipoModello, TIPO_MODELLO_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
-        line.append(improntaDocumentoInformatico.stream().map(row -> {
-            String tmp = CsvUtils.toFixedLength(improntaDocumentoInformatico.get(index.get()), IMPRONTA_DOCUMENTO_INFORMATICO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                    CsvUtils.toFixedLength(IUBD.get(index.get()), IUBD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                    CsvUtils.toFixedLength(codiceFiscalePsp.get(index.get()), CF_PSP_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                    CsvUtils.toFixedLength(denominazionePsp.get(index.get()), DENOMINAZIONE_PSP_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                    CsvUtils.toFixedLength(dataDiVendita.get(index.get()), DATA_VENDITA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ');
-            index.getAndIncrement();
-            return tmp;
-        }));
+                CsvUtils.toFixedLength(TIPO_MODELLO, TIPO_MODELLO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(improntaDocumentoInformatico, IMPRONTA_DOCUMENTO_INFORMATICO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(IUBD, IUBD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(codiceFiscalePsp, CF_PSP_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(denominazionePsp, DENOMINAZIONE_PSP_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(dataDiVendita, DATA_VENDITA_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
         for (int i = 0; i <= 10; i++) {
             line.append(CsvUtils.toFixedLength("", IMPRONTA_DOCUMENTO_INFORMATICO_LEN + IUBD_LEN + CF_PSP_LEN + DENOMINAZIONE_PSP_LEN + DATA_VENDITA_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
         }
         line.append(CsvUtils.toFixedLength(filler, FILLER_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
-        line.append(CsvUtils.toFixedLength(carattereDiControlloChiusuraRecord, CARATTERE_CONTROLLO_CHIUSURA_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
+        line.append(CsvUtils.toFixedLength(CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD, CARATTERE_CONTROLLO_CHIUSURA_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
         return line.toString();
     }
 }
