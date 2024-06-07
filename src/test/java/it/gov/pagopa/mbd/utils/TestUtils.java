@@ -2,8 +2,6 @@ package it.gov.pagopa.mbd.utils;
 
 
 import io.micrometer.core.instrument.util.IOUtils;
-import it.gov.pagopa.gen.wispconverter.client.cache.model.ConnectionDto;
-import it.gov.pagopa.gen.wispconverter.client.cache.model.ServiceDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,11 +36,11 @@ public class TestUtils {
         configDataV1.setStations(new HashMap<>());
         it.gov.pagopa.gen.mbd.client.cache.model.StationDto station = new it.gov.pagopa.gen.mbd.client.cache.model.StationDto();
         station.setStationCode(stationCode);
-        station.setConnection(new ConnectionDto());
+        station.setConnection(new it.gov.pagopa.gen.mbd.client.cache.model.ConnectionDto());
         station.getConnection().setIp("127.0.0.1");
         station.getConnection().setPort(8888l);
-        station.getConnection().setProtocol(ConnectionDto.ProtocolEnum.HTTP);
-        station.setService(new ServiceDto());
+        station.getConnection().setProtocol(it.gov.pagopa.gen.mbd.client.cache.model.ConnectionDto.ProtocolEnum.HTTP);
+        station.setService(new it.gov.pagopa.gen.mbd.client.cache.model.ServiceDto());
         station.getService().setPath("/path");
         station.setRedirect(new it.gov.pagopa.gen.mbd.client.cache.model.RedirectDto());
         station.getRedirect().setIp("127.0.0.1");
@@ -67,50 +65,12 @@ public class TestUtils {
         return configDataV1;
     }
 
-    public static void setMock(it.gov.pagopa.gen.wispconverter.client.decouplercaching.invoker.ApiClient client, ResponseEntity response){
+    public static void setMock(it.gov.pagopa.gen.mbd.client.cache.invoker.ApiClient client,ResponseEntity response){
         when(client.invokeAPI(any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any())).thenReturn(response);
         when(client.parameterToMultiValueMap(any(),any(),any())).thenReturn(new HttpHeaders());
         when(client.parameterToString(any())).thenReturn("");
         when(client.selectHeaderAccept(any())).thenReturn(Arrays.asList());
         when(client.selectHeaderContentType(any())).thenReturn(MediaType.APPLICATION_JSON);
-    }
-    public static void setMock(it.gov.pagopa.gen.wispconverter.client.cache.invoker.ApiClient client,ResponseEntity response){
-        when(client.invokeAPI(any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any())).thenReturn(response);
-        when(client.parameterToMultiValueMap(any(),any(),any())).thenReturn(new HttpHeaders());
-        when(client.parameterToString(any())).thenReturn("");
-        when(client.selectHeaderAccept(any())).thenReturn(Arrays.asList());
-        when(client.selectHeaderContentType(any())).thenReturn(MediaType.APPLICATION_JSON);
-    }
-    public static void setMock(it.gov.pagopa.gen.wispconverter.client.iuvgenerator.invoker.ApiClient client,ResponseEntity response){
-        when(client.invokeAPI(any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any())).thenReturn(response);
-        when(client.parameterToMultiValueMap(any(),any(),any())).thenReturn(new HttpHeaders());
-        when(client.parameterToString(any())).thenReturn("");
-        when(client.selectHeaderAccept(any())).thenReturn(Arrays.asList());
-        when(client.selectHeaderContentType(any())).thenReturn(MediaType.APPLICATION_JSON);
-    }
-    public static void setMock(it.gov.pagopa.gen.wispconverter.client.gpd.invoker.ApiClient client,ResponseEntity response){
-        when(client.invokeAPI(any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any())).thenReturn(response);
-        when(client.parameterToMultiValueMap(any(),any(),any())).thenReturn(new HttpHeaders());
-        when(client.parameterToString(any())).thenReturn("");
-        when(client.selectHeaderAccept(any())).thenReturn(Arrays.asList());
-        when(client.selectHeaderContentType(any())).thenReturn(MediaType.APPLICATION_JSON);
-    }
-    public static void setMock(it.gov.pagopa.gen.wispconverter.client.checkout.invoker.ApiClient client,ResponseEntity response){
-        when(client.invokeAPI(any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any(),any())).thenReturn(response);
-        when(client.parameterToMultiValueMap(any(),any(),any())).thenReturn(new HttpHeaders());
-        when(client.parameterToString(any())).thenReturn("");
-        when(client.selectHeaderAccept(any())).thenReturn(Arrays.asList());
-        when(client.selectHeaderContentType(any())).thenReturn(MediaType.APPLICATION_JSON);
-    }
-
-    public static String getInnerRptPayload(boolean bollo,String amount,String datiSpecificiRiscossione){
-        if(datiSpecificiRiscossione==null){
-            datiSpecificiRiscossione = "9/tipodovuto_7/datospecifico";
-        }
-        String rpt = TestUtils.loadFileContent(bollo?"/requests/rptBollo.xml":"/requests/rpt.xml");
-        return rpt
-                .replace("{datiSpecificiRiscossione}",datiSpecificiRiscossione)
-                .replaceAll("\\{amount\\}", amount);
     }
 
     public static byte[] zip(byte[] uncompressed) throws IOException {
@@ -121,6 +81,7 @@ public class TestUtils {
         bais.close();
         return bais.toByteArray();
     }
+
     public static String zipAndEncode(String p){
         try {
             return new String(Base64.getEncoder().encode(zip(p.getBytes(StandardCharsets.UTF_8))));
