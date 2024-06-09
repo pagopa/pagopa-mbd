@@ -3,14 +3,9 @@ package it.gov.pagopa.mbd.service.model.csv;
 import it.gov.pagopa.mbd.util.CsvUtils;
 import lombok.*;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-@Data
-@EqualsAndHashCode
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@Builder
 public class RecordV implements Record{
 
     private static final String TIPO_RECORD = "V";

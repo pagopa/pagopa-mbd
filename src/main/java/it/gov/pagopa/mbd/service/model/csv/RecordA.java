@@ -3,10 +3,9 @@ package it.gov.pagopa.mbd.service.model.csv;
 import it.gov.pagopa.mbd.util.CsvUtils;
 import lombok.*;
 
-@Data
-@EqualsAndHashCode
+
 @AllArgsConstructor
-@NoArgsConstructor
+@Getter
 @Builder(toBuilder = true)
 public class RecordA implements Record{
 

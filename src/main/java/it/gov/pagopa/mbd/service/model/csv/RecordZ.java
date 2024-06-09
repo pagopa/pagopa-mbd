@@ -3,11 +3,9 @@ package it.gov.pagopa.mbd.service.model.csv;
 import it.gov.pagopa.mbd.util.CsvUtils;
 import lombok.*;
 
-@Data
-@EqualsAndHashCode
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@Builder
 public class RecordZ {
 
     private static final String TIPO_RECORD = "Z";

@@ -1,7 +1,12 @@
 package it.gov.pagopa.mbd.utils;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.util.IOUtils;
+import it.gov.pagopa.mbd.repository.model.BizEventEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,9 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.HashMap;
+import java.util.*;
 import java.util.zip.GZIPOutputStream;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,37 +34,13 @@ public class TestUtils {
         return content;
     }
 
-    public static it.gov.pagopa.gen.mbd.client.cache.model.ConfigDataV1Dto configData(String stationCode){
+    public static it.gov.pagopa.gen.mbd.client.cache.model.ConfigDataV1Dto configData() throws JsonProcessingException {
         it.gov.pagopa.gen.mbd.client.cache.model.ConfigDataV1Dto configDataV1 = new it.gov.pagopa.gen.mbd.client.cache.model.ConfigDataV1Dto();
         configDataV1.setStations(new HashMap<>());
-        it.gov.pagopa.gen.mbd.client.cache.model.StationDto station = new it.gov.pagopa.gen.mbd.client.cache.model.StationDto();
-        station.setStationCode(stationCode);
-        station.setConnection(new it.gov.pagopa.gen.mbd.client.cache.model.ConnectionDto());
-        station.getConnection().setIp("127.0.0.1");
-        station.getConnection().setPort(8888l);
-        station.getConnection().setProtocol(it.gov.pagopa.gen.mbd.client.cache.model.ConnectionDto.ProtocolEnum.HTTP);
-        station.setService(new it.gov.pagopa.gen.mbd.client.cache.model.ServiceDto());
-        station.getService().setPath("/path");
-        station.setRedirect(new it.gov.pagopa.gen.mbd.client.cache.model.RedirectDto());
-        station.getRedirect().setIp("127.0.0.1");
-        station.getRedirect().setPath("/redirect");
-        station.getRedirect().setPort(8888l);
-        station.getRedirect().setProtocol(it.gov.pagopa.gen.mbd.client.cache.model.RedirectDto.ProtocolEnum.HTTPS);
-        station.getRedirect().setQueryString("param=1");
-        configDataV1.getStations().put(station.getStationCode(), station);
 
-        configDataV1.setConfigurations(new HashMap<>());
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.identificativoUnivocoAttestante.tipoIdentificativoUnivoco", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("G"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.identificativoUnivocoAttestante.codiceIdentificativoUnivoco", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("codiceIdentificativoUnivoco"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.denominazioneAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("denominazioneAttestante"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.codiceUnitOperAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("codiceUnitOperAttestante"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.denomUnitOperAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("denomUnitOperAttestante"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.indirizzoAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("indirizzoAttestante"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.civicoAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("civicoAttestante"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.capAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("capAttestante"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.localitaAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("localitaAttestante"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.provinciaAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("provinciaAttestante"));
-        configDataV1.getConfigurations().put("GLOBAL-istitutoAttestante.nazioneAttestante", new it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto().value("nazioneAttestante"));
+        configDataV1.setConfigurations(getConfigurations());
+        configDataV1.setCreditorInstitutions(getOrganizations());
+
         return configDataV1;
     }
 
@@ -88,6 +67,24 @@ public class TestUtils {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<BizEventEntity> getBizEvent() throws JsonProcessingException {
+        return List.of(new ObjectMapper().readValue(TestUtils.loadFileContent("/mock/bizevents.json"), BizEventEntity.class));
+    }
+
+    public static  Map<String, it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto> getOrganizations() throws JsonProcessingException {
+        TypeReference<HashMap<String,it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto>> typeRef
+                = new TypeReference<>() {
+        };
+        return new ObjectMapper().readValue(TestUtils.loadFileContent("/mock/organizations.json"), typeRef);
+    }
+
+    public static Map<String, it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto> getConfigurations() throws JsonProcessingException {
+        TypeReference<HashMap<String,it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto>> typeRef
+                = new TypeReference<>() {
+        };
+        return new ObjectMapper().readValue(TestUtils.loadFileContent("/mock/configurations.json"), typeRef);
     }
 
 }

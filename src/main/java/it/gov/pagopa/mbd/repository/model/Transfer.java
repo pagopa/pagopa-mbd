@@ -1,10 +1,15 @@
 package it.gov.pagopa.mbd.repository.model;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Builder(toBuilder = true)
+@Getter
+@Setter
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Transfer {
 
     private String idTransfer;
@@ -19,6 +24,7 @@ public class Transfer {
 
     private String remittanceInformation;
 
+    @JsonProperty("MBDAttachment")
     private String MBDAttachment;
 
 

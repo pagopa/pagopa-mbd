@@ -1,10 +1,12 @@
 package it.gov.pagopa.mbd.repository.model;
 
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 
-@Data
-@Builder(toBuilder = true)
+@Getter
+@Setter
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Psp {
 
     private String idPsp;

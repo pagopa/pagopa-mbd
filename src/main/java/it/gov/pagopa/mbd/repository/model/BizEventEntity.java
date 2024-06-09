@@ -1,16 +1,20 @@
 package it.gov.pagopa.mbd.repository.model;
 
+import com.azure.core.annotation.Get;
 import com.azure.spring.data.cosmos.core.mapping.Container;
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 
 import java.util.List;
 
-@Data
 @Container(containerName = "biz-events")
-@Builder(toBuilder = true)
+@NoArgsConstructor
+@Getter
+@Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BizEventEntity {
 
     @Id
@@ -25,6 +29,5 @@ public class BizEventEntity {
 
     private Long timestamp;
 
-    @Builder.Default
     private List<Transfer> transferList;
 }
