@@ -39,9 +39,6 @@ class GenerateReportingServiceTest {
 
     @Autowired private ConfigCacheService configCacheService;
 
-//    @MockBean
-//    private GenerateReportingService generateReportingService;
-
     @MockBean
     private BizEventRepository bizEventRepository;
 
@@ -61,7 +58,6 @@ class GenerateReportingServiceTest {
                                 Map.of("from", List.of("2024-01-01"), "to", List.of("2024-01-02"))
                         ))
                 )
-
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andDo(
                         (result) -> {
@@ -85,7 +81,6 @@ class GenerateReportingServiceTest {
                                 Map.of("from", List.of("2024-01-01"), "to", List.of("2024-01-02"), "organizations", List.of("0123456789"))
                         ))
                 )
-
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andDo(
                         (result) -> {
