@@ -1,10 +1,6 @@
 package it.gov.pagopa.mbd;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
-import it.gov.pagopa.mbd.repository.model.BizEventEntity;
 import it.gov.pagopa.mbd.service.ConfigCacheService;
 import it.gov.pagopa.mbd.utils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -19,11 +15,10 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.CollectionUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static it.gov.pagopa.mbd.utils.TestUtils.*;
+import static it.gov.pagopa.mbd.utils.TestUtils.getBizEvent;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
