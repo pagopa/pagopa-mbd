@@ -28,11 +28,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LoggingTest {
+class LoggingTest {
 
     @SneakyThrows
     @Test
-    public void testClientLogger(){
+    void testClientLogger(){
         HttpRequest httpRequest = mock(HttpRequest.class);
         ClientHttpResponse clientHttpResponse = mock(ClientHttpResponse.class);
         ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
@@ -64,7 +64,7 @@ public class LoggingTest {
 
     @SneakyThrows
     @Test
-    public void testClientLogger2(){
+    void testClientLogger2(){
         HttpRequest httpRequest = mock(HttpRequest.class);
         ClientHttpResponse clientHttpResponse = mock(ClientHttpResponse.class);
         ClientHttpRequestExecution execution = mock(ClientHttpRequestExecution.class);
@@ -96,7 +96,7 @@ public class LoggingTest {
 
     @SneakyThrows
     @Test
-    public void testServerLogger(){
+    void testServerLogger(){
         Method method = RecoveryController.class.getMethod("recover", LocalDate.class, LocalDate.class, String[].class);
         HandlerMethod handlerMethod = new HandlerMethod(new RecoveryController(null),method);
 

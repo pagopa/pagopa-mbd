@@ -40,12 +40,12 @@ public class RecordM implements Record{
     private String denominazionePa;
     private String comuneDomicilioFiscalePa;
     private String siglaDellaProvinciaDelDomicilioFiscalePa;
-    private String CAPDelDomicilioFiscalePa;
+    private String capDelDomicilioFiscalePa;
     private String indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscalePa;
     private String demoninazioneIntermediario;
     private String comuneDomicilioFiscaleIntermediario;
     private String siglaDellaProvinciaDelDomicilioFiscaleIntermediario;
-    private Long CAPDelDomicilioFiscaleIntermediario;
+    private Long capDelDomicilioFiscaleIntermediario;
     private String indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario;
     private String filler;
 
@@ -59,12 +59,12 @@ public class RecordM implements Record{
                     CsvUtils.toFixedLength(denominazionePa, DENOMINAZIONE_PA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(comuneDomicilioFiscalePa, COMUNE_DOMIC_FISCALE_PA, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(siglaDellaProvinciaDelDomicilioFiscalePa, SIGLA_PROV_PA, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                    CsvUtils.toFixedLength(CAPDelDomicilioFiscalePa, CAP_DOMICILIO_PA_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
+                    CsvUtils.toFixedLength(capDelDomicilioFiscalePa, CAP_DOMICILIO_PA_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
                     CsvUtils.toFixedLength(indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscalePa, INDIRIZZO_PA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(demoninazioneIntermediario, DENOMINAZIONE_INT_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(comuneDomicilioFiscaleIntermediario, COMUNE_INT_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(siglaDellaProvinciaDelDomicilioFiscaleIntermediario, PROV_INT_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                    CsvUtils.toFixedLength(CAPDelDomicilioFiscaleIntermediario, CAP_INT_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
+                    CsvUtils.toFixedLength(capDelDomicilioFiscaleIntermediario, CAP_INT_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
                     CsvUtils.toFixedLength(indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario, INDIRIZZO_INT_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(filler, FILLER_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                     CsvUtils.toFixedLength(CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD, CARATTERE_CONTROLLO_CHIUSURA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ');

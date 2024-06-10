@@ -167,14 +167,12 @@ public abstract class AbstractAppClientLoggingInterceptor implements ClientHttpR
 
         if (this.requestIncludePayload) {
             String payload = new String(reqBody, StandardCharsets.UTF_8);
-            if (payload != null) {
-                if (this.requestPretty) {
-                    msg.append(PRETTY_OUT).append(SPACE);
-                } else {
-                    msg.append(", ");
-                }
-                msg.append("payload: ").append(payload);
+            if (this.requestPretty) {
+                msg.append(PRETTY_OUT).append(SPACE);
+            } else {
+                msg.append(", ");
             }
+            msg.append("payload: ").append(payload);
         }
 
         return msg.toString();
@@ -205,9 +203,7 @@ public abstract class AbstractAppClientLoggingInterceptor implements ClientHttpR
 
             if (this.responseIncludeHeaders) {
                 HttpHeaders headers = new HttpHeaders();
-                response.getHeaders().forEach((s, h) -> {
-                    headers.add(s, StringUtils.join(h, ","));
-                });
+                response.getHeaders().forEach((s, h) -> headers.add(s, StringUtils.join(h, ",")));
                 if (this.responseHeaderPredicate != null) {
                     headers.forEach(
                             (key, value) -> {

@@ -35,7 +35,7 @@ public class RecordV implements Record{
     private String dataInvioFlussoMarcheDigitali;
     private Long progressivoInvioFlussoMarcheDigitali;
     private String improntaDocumentoInformatico;
-    private String IUBD;
+    private String iubd;
     private String codiceFiscalePsp;
     private String denominazionePsp;
     private String dataDiVendita;
@@ -50,7 +50,7 @@ public class RecordV implements Record{
                 CsvUtils.toFixedLength(progressivoInvioFlussoMarcheDigitali, PROG_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
                 CsvUtils.toFixedLength(TIPO_MODELLO, TIPO_MODELLO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(improntaDocumentoInformatico, IMPRONTA_DOCUMENTO_INFORMATICO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-                CsvUtils.toFixedLength(IUBD, IUBD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
+                CsvUtils.toFixedLength(iubd, IUBD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(codiceFiscalePsp, CF_PSP_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(denominazionePsp, DENOMINAZIONE_PSP_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
                 CsvUtils.toFixedLength(dataDiVendita, DATA_VENDITA_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));

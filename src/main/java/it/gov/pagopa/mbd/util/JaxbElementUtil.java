@@ -27,7 +27,7 @@ public class JaxbElementUtil {
             Unmarshaller unmarshaller = context.createUnmarshaller();
             JAXBElement<T> jaxbElement = unmarshaller.unmarshal(new StreamSource(byteArrayInputStream),targetType);
             byteArrayInputStream.close();
-            return (T)jaxbElement.getValue();
+            return jaxbElement.getValue();
         } catch (JAXBException | IOException e) {
             throw new AppException(e, AppError.PARSING_GENERIC_ERROR, e.getMessage());
         }

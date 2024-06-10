@@ -5,7 +5,6 @@ import it.gov.pagopa.mbd.exception.AppException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 

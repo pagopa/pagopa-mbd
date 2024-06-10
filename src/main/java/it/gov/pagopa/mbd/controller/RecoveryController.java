@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
@@ -35,13 +34,12 @@ public class RecoveryController {
             @ApiResponse(responseCode = "201", description = "Recovery FdR MDB taken", content = @Content(schema = @Schema()))
     })
     @PatchMapping(value = "/recover", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseBody
-    public ResponseEntity recover(
+    public ResponseEntity<Void> recover(
                            @RequestParam("from") LocalDate from,
                            @RequestParam("to") LocalDate to,
                            @RequestParam(value="organizations", required = false) String[] organizations) {
         generateReportingService.recovery(from, to, organizations);
-        return new ResponseEntity(HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
 }

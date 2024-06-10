@@ -107,13 +107,13 @@ public class GenerateReportingService {
                 if (pa.getAddress() != null) {
                     recordM.setComuneDomicilioFiscalePa(pa.getAddress().getCity());
                     recordM.setSiglaDellaProvinciaDelDomicilioFiscalePa(pa.getAddress().getLocation());
-                    recordM.setCAPDelDomicilioFiscalePa(pa.getAddress().getZipCode());
+                    recordM.setCapDelDomicilioFiscalePa(pa.getAddress().getZipCode());
                     recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscalePa(pa.getAddress().getTaxDomicile());
                 }
                 recordM.setDemoninazioneIntermediario(intermediarioDenominazione);
                 recordM.setComuneDomicilioFiscaleIntermediario(intermediarioComune);
                 recordM.setSiglaDellaProvinciaDelDomicilioFiscaleIntermediario(intermediarioSiglaProvincia);
-                recordM.setCAPDelDomicilioFiscaleIntermediario(Long.getLong(intermediarioCap));
+                recordM.setCapDelDomicilioFiscaleIntermediario(Long.getLong(intermediarioCap));
                 recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario(intermediarioIndirizzo);
 
                 log.debug("PA:{} - Progressivo:{} - Creazione Lista RecordV", pa.getCreditorInstitutionCode(), progressivo);
@@ -129,7 +129,7 @@ public class GenerateReportingService {
                     recordV.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
                     recordV.setProgressivoInvioFlussoMarcheDigitali(progressivo.longValue());
                     recordV.setImprontaDocumentoInformatico(new String(tipoMarcaDaBollo.getImprontaDocumento().getDigestValue(), StandardCharsets.UTF_8));
-                    recordV.setIUBD(tipoMarcaDaBollo.getIUBD());
+                    recordV.setIubd(tipoMarcaDaBollo.getIUBD());
                     recordV.setCodiceFiscalePsp(tipoMarcaDaBollo.getPSP().getCodiceFiscale());
                     recordV.setDenominazionePsp(tipoMarcaDaBollo.getPSP().getDenominazione());
                     recordV.setDataDiVendita(tipoMarcaDaBollo.getOraAcquisto().toString());
