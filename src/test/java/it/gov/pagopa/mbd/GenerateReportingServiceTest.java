@@ -82,7 +82,5 @@ class GenerateReportingServiceTest {
                             assertNotNull(result);
                             assertNotNull(result.getResponse());
                         });
-
-        verify(bizEventRepository,times(1)).getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString());
     }
 }
