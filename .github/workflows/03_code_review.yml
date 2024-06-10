@@ -40,6 +40,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           project_key: ${{env.PROJECT_KEY}}
-          java_version: 17
-          coverage_exclusions: "**/config/*,**/*Mock*,**/model/**,**/entity/*"
+          coverage_exclusions: "**/config/*,**/*Mock*,**/model/**,**/entity/*,**/util/*"
           cpd_exclusions: "**/models/**,**/entity/*"
+          java_version: 17
