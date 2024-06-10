@@ -2,7 +2,6 @@ package it.gov.pagopa.mbd.service;
 
 import it.gov.agenziaentrate._2014.marcadabollo.TipoMarcaDaBollo;
 import it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto;
-import it.gov.pagopa.gen.mbd.client.cache.model.PaymentServiceProviderDto;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
 import it.gov.pagopa.mbd.repository.model.BizEventEntity;
 import it.gov.pagopa.mbd.repository.model.Transfer;
@@ -20,28 +19,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static it.gov.pagopa.mbd.util.CsvUtils.writeFile;
 

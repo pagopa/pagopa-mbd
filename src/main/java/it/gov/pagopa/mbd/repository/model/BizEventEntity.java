@@ -1,10 +1,10 @@
 package it.gov.pagopa.mbd.repository.model;
 
-import com.azure.core.annotation.Get;
 import com.azure.spring.data.cosmos.core.mapping.Container;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 

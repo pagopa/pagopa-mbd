@@ -1,7 +1,9 @@
 package it.gov.pagopa.mbd.service.model.csv;
 
 import it.gov.pagopa.mbd.util.CsvUtils;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

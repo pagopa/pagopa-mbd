@@ -2,7 +2,6 @@ package it.gov.pagopa.mbd.config;
 
 import it.gov.pagopa.mbd.service.ConfigCacheService;
 import it.gov.pagopa.mbd.service.GenerateReportingService;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
