@@ -30,15 +30,15 @@ public class ErrorUtil {
     private String errorCodeUri;
 
     public ErrorResponse forAppException(AppException appEx) {
-        return ErrorResponse.builder(appEx, forAppError(appEx.getError(), appEx.getMessage()))
+        return ErrorResponse.builder(appEx, forAppErrorCodeMessageEnum(appEx.getError(), appEx.getMessage()))
                 .titleMessageCode(String.format(ERROR_CODE_TITLE, appEx.getError().name()))
                 .detailMessageCode(String.format(ERROR_CODE_DETAIL, appEx.getError().name()))
                 .detailMessageArguments(appEx.getArgs())
                 .build();
     }
 
-    public ProblemDetail forAppError(AppError error, @Nullable String detail) {
-        Assert.notNull(error, "AppError is required");
+    public ProblemDetail forAppErrorCodeMessageEnum(AppError error, @Nullable String detail) {
+        Assert.notNull(error, "AppErrorCodeMessageEnum is required");
 
         ProblemDetail problemDetail = ProblemDetail.forStatus(error.getHttpStatus());
         problemDetail.setType(getTypeFromErrorCode(getAppCode(error)));
@@ -72,6 +72,6 @@ public class ErrorUtil {
     }
 
     public String getAppCode(AppError error) {
-        return String.format("%s-%s", Constants.SERVICE_CODE_APP, error.getHttpStatus().name());
+        return String.format("%s-%s", Constants.SERVICE_CODE_APP, error.getHttpStatus());
     }
 }

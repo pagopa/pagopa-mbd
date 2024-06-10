@@ -1,5 +1,6 @@
 package it.gov.pagopa.mbd.util.client;
 
+import it.gov.pagopa.mbd.config.client.RequestResponseLoggingProperties;
 import it.gov.pagopa.mbd.service.model.re.CallTypeEnum;
 import it.gov.pagopa.mbd.service.model.re.CategoriaEventoEnum;
 import it.gov.pagopa.mbd.service.model.re.SottoTipoEventoEnum;
@@ -34,7 +35,6 @@ public abstract class AbstractAppClientLoggingInterceptor implements ClientHttpR
     private static final String SPACE = " ";
     private static final String PRETTY_OUT = "\n===> *";
     private static final String PRETTY_IN = "\n<=== *";
-    protected ClientServiceEnum clientServiceEnum;
     private boolean requestIncludeHeaders;
     private boolean responseIncludeHeaders;
     private boolean requestIncludePayload;
@@ -46,11 +46,10 @@ public abstract class AbstractAppClientLoggingInterceptor implements ClientHttpR
     private boolean requestPretty;
     private boolean responsePretty;
 
-    public AbstractAppClientLoggingInterceptor(it.gov.pagopa.mbd.util.client.RequestResponseLoggingProperties clientLoggingProperties, ClientServiceEnum clientServiceEnum) {
-        this.clientServiceEnum = clientServiceEnum;
+    public AbstractAppClientLoggingInterceptor(RequestResponseLoggingProperties clientLoggingProperties) {
 
         if (clientLoggingProperties != null) {
-            it.gov.pagopa.mbd.util.client.RequestResponseLoggingProperties.Request request = clientLoggingProperties.getRequest();
+            RequestResponseLoggingProperties.Request request = clientLoggingProperties.getRequest();
             if (request != null) {
                 this.requestIncludeHeaders = request.isIncludeHeaders();
                 this.requestIncludePayload = request.isIncludePayload();
@@ -76,13 +75,9 @@ public abstract class AbstractAppClientLoggingInterceptor implements ClientHttpR
         String startClient = String.valueOf(System.currentTimeMillis());
         String clientOperationId = UUID.randomUUID().toString();
         MDC.put(Constants.MDC_CLIENT_OPERATION_ID, clientOperationId);
+        MDC.put(Constants.MDC_CLIENT_SERVICE_ID, "API CONFIG CACHE");
         String operationId = MDC.get(Constants.MDC_OPERATION_ID);
         request(clientOperationId, operationId, request, body);
-
-//    MDC.getCopyOfContextMap().forEach((k,v) -> {
-//      log.debug(String.format("CLIENT AFTER MDC %s=%s",k, v));
-//    });
-
 
         ClientHttpResponse response;
         try {
@@ -105,7 +100,6 @@ public abstract class AbstractAppClientLoggingInterceptor implements ClientHttpR
                 MDC.put(Constants.MDC_EVENT_SUB_CATEGORY, SottoTipoEventoEnum.RESP.name());
                 log.debug("[intercept] add RE CLIENT IN - Sent - RICEVUTA_KO");
             }
-
 
             response(clientOperationId, operationId, executionClientTime, request, response);
 

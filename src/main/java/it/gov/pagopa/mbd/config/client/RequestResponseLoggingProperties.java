@@ -1,4 +1,4 @@
-package it.gov.pagopa.mbd.util.client;
+package it.gov.pagopa.mbd.config.client;
 
 import lombok.*;
 

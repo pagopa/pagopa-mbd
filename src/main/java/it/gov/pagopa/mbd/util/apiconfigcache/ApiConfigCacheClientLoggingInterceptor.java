@@ -1,8 +1,7 @@
-package it.gov.pagopa.mbd.util.client.apiconfigcache;
+package it.gov.pagopa.mbd.util.apiconfigcache;
 
+import it.gov.pagopa.mbd.config.client.RequestResponseLoggingProperties;
 import it.gov.pagopa.mbd.util.client.AbstractAppClientLoggingInterceptor;
-import it.gov.pagopa.mbd.util.client.ClientServiceEnum;
-import it.gov.pagopa.mbd.util.client.RequestResponseLoggingProperties;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpRequest;
@@ -12,7 +11,7 @@ import org.springframework.http.client.ClientHttpResponse;
 public class ApiConfigCacheClientLoggingInterceptor extends AbstractAppClientLoggingInterceptor {
 
     public ApiConfigCacheClientLoggingInterceptor(RequestResponseLoggingProperties clientLoggingProperties){
-        super(clientLoggingProperties, ClientServiceEnum.API_CONFIG_CACHE);
+        super(clientLoggingProperties);
     }
 
     @Override

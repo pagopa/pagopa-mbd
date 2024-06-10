@@ -29,7 +29,7 @@ public class MDCUtil {
         MDC.put(Constants.MDC_STATUS, status);
         MDC.put(Constants.MDC_STATUS_CODE, String.valueOf(statusCode));
         String executionTime = CommonUtility.getExecutionTime(MDC.get(Constants.MDC_START_TIME));
-         MDC.put(Constants.MDC_EXECUTION_TIME, executionTime);
+        MDC.put(Constants.MDC_EXECUTION_TIME, executionTime);
     }
 
     public static boolean hasStatus(){

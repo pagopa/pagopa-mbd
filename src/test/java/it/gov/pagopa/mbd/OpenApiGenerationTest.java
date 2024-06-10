@@ -1,5 +1,6 @@
 package it.gov.pagopa.mbd;
 
+import com.azure.cosmos.CosmosAsyncClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import it.gov.pagopa.mbd.controller.RecoveryController;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
@@ -34,6 +35,9 @@ class OpenApiGenerationTest {
 
     @MockBean
     private RecoveryController recoveryController;
+
+    @MockBean
+    private CosmosAsyncClient cosmosAsyncClient;
 
     @Mock
     private GenerateReportingService generateReportingService;

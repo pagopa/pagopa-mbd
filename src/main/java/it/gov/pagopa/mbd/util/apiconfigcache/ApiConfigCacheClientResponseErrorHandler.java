@@ -1,4 +1,4 @@
-package it.gov.pagopa.mbd.util.client.apiconfigcache;
+package it.gov.pagopa.mbd.util.apiconfigcache;
 
 import it.gov.pagopa.mbd.exception.AppError;
 import it.gov.pagopa.mbd.exception.AppException;
@@ -16,6 +16,7 @@ import java.nio.charset.Charset;
 @Component
 @Slf4j
 public class ApiConfigCacheClientResponseErrorHandler extends AbstractResponseErrorHandler implements ResponseErrorHandler {
+
     @Override
     public boolean hasError(ClientHttpResponse response) throws IOException {
         return response.getStatusCode().is5xxServerError() ||
@@ -40,8 +41,7 @@ public class ApiConfigCacheClientResponseErrorHandler extends AbstractResponseEr
             ex = new UnknownHttpStatusCodeException(message, statusCode.value(), statusText, headers, body, charset);
         }
 
-        throw new AppException(ex, AppError.INTERNAL_SERVER_ERROR, message);
+        throw new AppException(ex, AppError.CLIENT_APICONFIGCACHE, message);
     }
-
 
 }

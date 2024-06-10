@@ -50,26 +50,6 @@ public class CommonUtility {
         return String.format("%s-%s", Constants.SERVICE_CODE_APP, error.httpStatus);
     }
 
-    public static String constructUrl(String protocol, String hostname, int port, String path, String query, String fragment) {
-        try {
-            String pathMod = null;
-            if( null != path ) {
-                pathMod = path.startsWith("/") ? path : ("/" + path);
-            }
-
-            return new URI(
-                    protocol.toLowerCase(),
-                    null,
-                    hostname,
-                    port,
-                    pathMod,
-                    query,
-                    fragment).toString();
-        } catch (Exception e) {
-            throw new AppException(AppError.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     public static String getConfigKeyValueCache(Map<String, it.gov.pagopa.gen.mbd.client.cache.model.ConfigurationKeyDto> configurations, String key) {
         try {
             return configurations.get(key).getValue();

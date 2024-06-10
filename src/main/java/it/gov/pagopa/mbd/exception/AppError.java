@@ -14,6 +14,8 @@ public enum AppError {
     PARSING_INVALID_ZIPPED_PAYLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "ZIP extraction error", "Error while parsing payload. Cannot unzip payload correctly."),
     PARSING_PRIMITIVE_NOT_VALID(HttpStatus.INTERNAL_SERVER_ERROR, "Primitive not valid", "Error while checking primitive. Primitive [{0}] not valid."),
 
+    CLIENT_APICONFIGCACHE(HttpStatus.INTERNAL_SERVER_ERROR, "APIConfig cache client error", "Error while communicating with APIConfig cache service. {0}"),
+
     BAD_REQUEST(HttpStatus.INTERNAL_SERVER_ERROR, "Bad Request", "%s"),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized", "Error during authentication"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden", "This method is forbidden"),

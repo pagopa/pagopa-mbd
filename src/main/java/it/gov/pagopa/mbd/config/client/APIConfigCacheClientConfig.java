@@ -1,8 +1,7 @@
 package it.gov.pagopa.mbd.config.client;
 
-import it.gov.pagopa.mbd.util.client.RequestResponseLoggingProperties;
-import it.gov.pagopa.mbd.util.client.apiconfigcache.ApiConfigCacheClientLoggingInterceptor;
-import it.gov.pagopa.mbd.util.client.apiconfigcache.ApiConfigCacheClientResponseErrorHandler;
+import it.gov.pagopa.mbd.util.apiconfigcache.ApiConfigCacheClientLoggingInterceptor;
+import it.gov.pagopa.mbd.util.apiconfigcache.ApiConfigCacheClientResponseErrorHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +39,6 @@ public class APIConfigCacheClientConfig {
     public RequestResponseLoggingProperties cacheClientLoggingProperties() {
         return new RequestResponseLoggingProperties();
     }
-
 
     @Bean
     public it.gov.pagopa.gen.mbd.client.cache.invoker.ApiClient configCacheClient() {
