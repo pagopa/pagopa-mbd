@@ -38,8 +38,6 @@ import static it.gov.pagopa.mbd.util.CsvUtils.writeFile;
 @ConditionalOnProperty(prefix = "mbd.rendicontazioni.generate", name = "enabled")
 public class GenerateReportingService {
 
-//    private final FtpClient ftpClient;
-
     private static final DateTimeFormatter formatterHours = DateTimeFormatter.ofPattern("HHmmss");
     private static final String CODICE_FLUSSO_NORMALE = "A5";
     private static final int DAY_OF_YEAR_LEN = 3;
@@ -81,7 +79,6 @@ public class GenerateReportingService {
                             .anyMatch(or -> or.equals(o.getCreditorInstitutionCode())))
                     .collect(Collectors.toList());
         }
-
 
         for (CreditorInstitutionDto pa : ecs) {
             List<BizEventEntity> bizEvents = bizEventRepository.getBizEventsByDateFromAndDateToAndEC(dateFrom, dateTo, pa.getCreditorInstitutionCode());
@@ -149,11 +146,6 @@ public class GenerateReportingService {
 
                 String contenutoFile = recordA.toLine() + "\n" + recordM.toLine() + "\n" + recordsV.stream().map(RecordV::toLine).collect(Collectors.joining("\n")) + "\n" + recordZ.toLine();
 
-                String a = recordA.toLine();
-                String m = recordM.toLine();
-                String v = recordsV.stream().map(RecordV::toLine).collect(Collectors.joining("\n"));
-                String z = recordZ.toLine();
-
                 String dayOfYear = String.valueOf(now.getDayOfYear());
                 String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
 
@@ -177,7 +169,6 @@ public class GenerateReportingService {
             execute(date, organizations);
             date = date.plusDays(1);
         } while( date.isBefore(to) );
-
     }
 
 }
