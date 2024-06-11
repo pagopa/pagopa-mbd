@@ -1,0 +1,114 @@
+{
+  "id": "1c7a0d04-3530-42e0-bec4-6f98be777368",
+  "version": "2",
+  "complete": "false",
+  "receiptId": "5576e65fa4e74932ab03f91232c5a52e",
+  "missingInfo": [
+    "idPaymentManager",
+    "psp.pspPartitaIVA",
+    "paymentInfo.primaryCiIncurredFee",
+    "paymentInfo.idBundle",
+    "paymentInfo.idCiBundle"
+  ],
+  "debtorPosition": {
+    "modelType": "2",
+    "noticeNumber": "310119120748198567",
+    "iuv": "10119120748198567",
+    "iur": "5576e65fa4e74932ab03f91232c5a52e"
+  },
+  "creditor": {
+    "idPA": "66666666666",
+    "idBrokerPA": "66666666666",
+    "idStation": "66666666666_08",
+    "companyName": "PA paolo",
+    "officeName": "office"
+  },
+  "psp": {
+    "idPsp": "60000000001",
+    "idBrokerPsp": "60000000001",
+    "idChannel": "60000000001_08",
+    "psp": "PSP Paolo",
+    "pspFiscalCode": "CF60000000006",
+    "channelDescription": "app"
+  },
+  "debtor": {
+    "fullName": "paGetPaymentName",
+    "entityUniqueIdentifierType": "G",
+    "entityUniqueIdentifierValue": "44444444444",
+    "streetName": "paGetPaymentStreet",
+    "civicNumber": "paGetPayment99",
+    "postalCode": "20155",
+    "city": "paGetPaymentCity",
+    "stateProvinceRegion": "paGetPaymentState",
+    "country": "IT",
+    "eMail": "paGetPayment@test.it"
+  },
+  "payer": {
+    "fullName": "name",
+    "entityUniqueIdentifierType": "G",
+    "entityUniqueIdentifierValue": "77777777777_01",
+    "streetName": "street",
+    "civicNumber": "civic",
+    "postalCode": "postal",
+    "city": "city",
+    "stateProvinceRegion": "state",
+    "country": "IT",
+    "eMail": "prova@test.it"
+  },
+  "paymentInfo": {
+    "paymentDateTime": "2024-04-29T18:17:22.894078",
+    "applicationDate": "2021-12-12",
+    "transferDate": "2021-12-11",
+    "dueDate": "2021-12-12",
+    "paymentToken": "5576e65fa4e74932ab03f91232c5a52e",
+    "amount": "10.0",
+    "fee": "2.0",
+    "totalNotice": "1",
+    "paymentMethod": "creditCard",
+    "touchpoint": "app",
+    "remittanceInformation": "test",
+    "description": "test",
+    "metadata": [
+      {
+        "key": "1",
+        "value": "22"
+      }
+    ],
+    "IUR": "5576e65fa4e74932ab03f91232c5a52e"
+  },
+  "transferList": [
+    {
+      "idTransfer": "1",
+      "fiscalCodePA": "66666666666",
+      "companyName": "PA paolo",
+      "amount": "10.0",
+      "transferCategory": "paGetPaymentTest",
+      "remittanceInformation": "/RFB/00202200000217527/5.00/TXT/",
+      "MBDAttachment": "<marcaDaBollo xmlns=\"http://www.agenziaentrate.gov.it/2014/MarcaDaBollo\" xmlns:ns2=\"http://www.w3.org/2000/09/xmldsig#\">\n<PSP>\n<CodiceFiscale>CF60000000006</CodiceFiscale>\n<Denominazione>60000000001</Denominazione>\n</PSP>\n<IUBD>1158346812341032</IUBD>\n<OraAcquisto>2022-02-06T15:00:44.659+01:00</OraAcquisto>\n<Importo>5.00</Importo>\n<TipoBollo>01</TipoBollo>\n<ImprontaDocumento>\n<DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\" />\n<ns2:DigestValue>wHpFSLCGZjIvNSXxqtGbxg7275t446DRTk5ZrsdUQ6E=</ns2:DigestValue>\n</ImprontaDocumento>\n<Signature xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n<SignedInfo>\n<CanonicalizationMethod Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\" />\n<SignatureMethod Algorithm=\"http://www.w3.org/2001/04/xmldsig-more#rsa-sha256\" />\n<Reference URI=\"\">\n<Transforms>\n<Transform Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\" />\n</Transforms>\n<DigestMethod Algorithm=\"http://www.w3.org/2001/04/xmlenc#sha256\" />\n<DigestValue>wHpFSLCGZjIvNSXxqtGbxg7275t446DRTk5ZrsdUQ6E=</DigestValue>\n</Reference>\n</SignedInfo>\n<SignatureValue>tSO5SByNpadbzbPvUn5T99ajU4hHdqJLVyr4u8P8WSB5xc9K7Szmw/fo5SYXYaPS6A/DzPlchM95 fgFMZ3VYByqtA+Vc7WgX8aIOEVOrM6eXqx8+kc4g/jgm/9EQyUmXGP+RBvx2Sg0uim04aDdB7Ffd UIi6Q5vjjna1rhNvZIkBEjCV++f+wbL9qpFLt8E2N+bOq9Y0wcTUBHiICrxXvDBDUj1X7Ckbu0/Y KVRJck6cE5rpoQB6DjxdEn5DEUgmzR/UZEwtA1BK3cVRiOsaszx8bXEIwGHe4fvvzxJOHIqgL4ct jj1DoI5m2xGoobQ3rG6Pf3HEwFXLw9x83OykDA==</SignatureValue>\n</Signature>\n</marcaDaBollo>"
+    }
+  ],
+  "transactionDetails": {
+    "user": {
+      "fullName": "John Doe",
+      "type": "F",
+      "fiscalCode": "JHNDOE00A01F205N",
+      "notificationEmail": "john.doe@mail.it",
+      "userId": "1234",
+      "userStatus": "11",
+      "userStatusDescription": "REGISTERED_SPID"
+    }
+  },
+  "timestamp": 1714407453560,
+  "properties": {
+    "diagnostic-id": "00-fb1c8fe5d311931f951346c04a6f2ad3-fbdfd86bce75f90e-01",
+    "serviceIdentifier": "NDP002SIT"
+  },
+  "eventStatus": "INGESTED",
+  "eventRetryEnrichmentCount": 0,
+  "eventTriggeredBySchedule": false,
+  "_rid": "sMJGAMl3HZkHjewAAAAABA==",
+  "_self": "dbs/sMJGAA==/colls/sMJGAMl3HZk=/docs/sMJGAMl3HZkHjewAAAAABA==/",
+  "_etag": "\"1e0051fd-0000-0d00-0000-6654ab260000\"",
+  "_attachments": "attachments/",
+  "_ts": 1716824870
+}

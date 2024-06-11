@@ -1,0 +1,34 @@
+{
+  "0123456789": {
+    "creditor_institution_code": "0123456789",
+    "enabled": true,
+    "business_name": "Istituto della Prova",
+    "description": null,
+    "address": {
+      "location": "Via delle prove",
+      "city": "Città prova",
+      "zip_code": "20000",
+      "country_code": "CP",
+      "tax_domicile": "Via delle prove"
+    },
+    "psp_payment": false,
+    "reporting_ftp": false,
+    "reporting_zip": false
+  },
+  "9876543210": {
+    "creditor_institution_code": "9876543210",
+    "enabled": true,
+    "business_name": "TestCsv2",
+    "description": null,
+    "address": {
+      "location": null,
+      "city": null,
+      "zip_code": null,
+      "country_code": null,
+      "tax_domicile": null
+    },
+    "psp_payment": true,
+    "reporting_ftp": false,
+    "reporting_zip": false
+  }
+}

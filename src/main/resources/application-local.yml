@@ -1,0 +1,11 @@
+cors:
+  configuration: '{"origins": ["*"], "methods": ["*"]}'
+info:
+  properties:
+    environment: local
+logging:
+  level:
+    root: INFO
+    it:
+      gov:
+        pagopa: DEBUG
