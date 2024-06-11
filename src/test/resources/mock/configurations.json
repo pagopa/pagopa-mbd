@@ -1,0 +1,56 @@
+{
+  "rendicontazioni-bollo.intermediario.CAPDelDomicilioFiscale": {
+    "category": "rendicontazioni",
+    "key": "bollo.intermediario.CAPDelDomicilioFiscale",
+    "value": "20147",
+    "description": "Dati dell'intermediario della trasmissione/ C.A.P. domicilio fiscale"
+  },
+  "rendicontazioni-bollo.intermediario.comuneDomicilioFiscale": {
+    "category": "rendicontazioni",
+    "key": "bollo.intermediario.comuneDomicilioFiscale",
+    "value": "Milano",
+    "description": "Dati dell'intermediario della trasmissione/ Comune domicilio fiscale"
+  },
+  "rendicontazioni-bollo.intermediario.indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscale": {
+    "category": "rendicontazioni",
+    "key": "bollo.intermediario.indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscale",
+    "value": "Via Gonin, 36",
+    "description": "Dati dell'intermediario della trasmissione/ Indirizzo, frazione, via e numero civico del domicilio fiscale"
+  },
+  "rendicontazioni-bollo.intermediario.denominazione": {
+    "category": "rendicontazioni",
+    "key": "bollo.intermediario.denominazione",
+    "value": "SIA S.p.A.",
+    "description": "Dati dell'intermediario della trasmissione/ Denominazione"
+  },
+  "rendicontazioni-bollo.mittente.codiceFiscale": {
+    "category": "rendicontazioni",
+    "key": "bollo.mittente.codiceFiscale",
+    "value": "15376371009",
+    "description": null
+  },
+  "rendicontazioni-bollo.codiceIdentificativo.1": {
+    "category": "rendicontazioni",
+    "key": "bollo.codiceIdentificativo.1",
+    "value": "SIA",
+    "description": null
+  },
+  "rendicontazioni-bollo.codiceIdentificativo.2": {
+    "category": "rendicontazioni",
+    "key": "bollo.codiceIdentificativo.2",
+    "value": "YY",
+    "description": null
+  },
+  "rendicontazioni-bollo.dateFormat": {
+    "category": "rendicontazioni",
+    "key": "bollo.dateFormat",
+    "value": "yyyy-MM-dd",
+    "description": null
+  },
+  "rendicontazioni-bollo.intermediario.siglaDellaProvinciaDelDomicilioFiscale": {
+    "category": "rendicontazioni",
+    "key": "bollo.intermediario.siglaDellaProvinciaDelDomicilioFiscale",
+    "value": "MI",
+    "description": "Dati dell'intermediario della trasmissione/ Sigle della provincia del domicilio fiscale"
+  }
+}
