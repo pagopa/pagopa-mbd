@@ -1,4 +1,4 @@
-package it.gov.pagopa.mbd.model;
+package it.gov.pagopa.mbd.controller.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AppInfo {
+public class AppInfoResponse {
 
     private String name;
     private String version;
