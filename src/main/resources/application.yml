@@ -25,13 +25,15 @@ info:
     description: '@project.description@'
     artifactId: '@project.artifactId@'
   properties:
-    environment: ${ENV:azure}
+    environment: ${ENV:local}
 azure:
   cosmos:
     database: db
     uri: ${COSMOS_URI:https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/}
     key: ${COSMOS_KEY:-}
     populate-query-metrics: 'false'
+    endpoint-discovery-enabled: ${COSMOS_ENDPOINT_DISCOVERY_ENABLED:false}
+    preferred-regions: ${COSMOS_PREFERRED_REGIONS:West Europe,North Europe}
 mbd:
   cache:
     refresh:

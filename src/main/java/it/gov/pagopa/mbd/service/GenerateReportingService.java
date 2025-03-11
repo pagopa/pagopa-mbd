@@ -24,6 +24,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -58,8 +59,16 @@ public class GenerateReportingService {
     log.info("generate reporting MBD for {}", date);
 
     try {
-      long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-      long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).toEpochMilli();
+      // c.timestamp in Cosmos DB biz event is a UNIX timestamp in
+      // milliseconds
+      // long dateFrom =
+      // date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+      // long dateTo =
+      // date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).toEpochMilli();
+
+      // c._ts in Cosmos DB biz event is a UNIX timestamp in seconds
+      long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
+      long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).getEpochSecond();
 
       String rendicontazioneBolloDateFormat =
           CommonUtility.getConfigKeyValueCache(
@@ -110,18 +119,32 @@ public class GenerateReportingService {
       Map<String, CreditorInstitutionDto> organizations =
           configCacheService.getConfigData().getCreditorInstitutions();
 
-      List<CreditorInstitutionDto> ecs =
-          (organizationsRequest == null || organizationsRequest.length == 0)
-              ? organizations.values().stream().toList()
-              : organizations.values().stream()
-                  .filter(
-                      o ->
-                          Arrays.asList(organizationsRequest)
-                              .contains(o.getCreditorInstitutionCode()))
-                  .toList();
+      /*
+       * List<CreditorInstitutionDto> ecs = (organizationsRequest == null ||
+       * organizationsRequest.length == 0) ?
+       * organizations.values().stream().toList() :
+       * organizations.values().stream() .filter( o ->
+       * Arrays.asList(organizationsRequest)
+       * .contains(o.getCreditorInstitutionCode())) .toList();
+       */
 
+      // filter and sort the PAs based on idDominio in ascending order
+      List<CreditorInstitutionDto> ecs =
+          organizations.values().stream()
+              .filter(
+                  pa ->
+                      organizationsRequest == null
+                          || organizationsRequest.length == 0
+                          || Arrays.asList(organizationsRequest)
+                              .contains(pa.getCreditorInstitutionCode()))
+              .sorted(
+                  Comparator.comparing(CreditorInstitutionDto::getCreditorInstitutionCode)) // Sort
+              .toList();
+
+      // progressivo starts from 1 and increases for each PA
+      long progressivo = 1L;
       for (CreditorInstitutionDto pa : ecs) {
-        processData(dateFrom, dateTo, dateFormat, pa, cacheInstitutionData);
+        processData(dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
       }
     } catch (Exception e) {
       log.error("Error generating MBD reporting: {}", e.getMessage(), e);
@@ -133,7 +156,8 @@ public class GenerateReportingService {
       long dateTo,
       DateTimeFormatter dateFormat,
       CreditorInstitutionDto pa,
-      CacheInstitutionData cacheInstitutionData)
+      CacheInstitutionData cacheInstitutionData,
+      long progressivo)
       throws MBDReportingException {
     try {
       List<BizEventEntity> bizEvents =
@@ -141,7 +165,6 @@ public class GenerateReportingService {
               dateFrom, dateTo, pa.getCreditorInstitutionCode());
 
       if (!bizEvents.isEmpty()) {
-        long progressivo = 0L;
 
         LocalDateTime now = LocalDateTime.now();
         String dataInvioFlusso = now.format(dateFormat);
@@ -198,20 +221,17 @@ public class GenerateReportingService {
                               .encodeToString(
                                   tipoMarcaDaBollo.getImprontaDocumento().getDigestValue());
 
-                      Long vRecordCounter = progressivo;
-
                       RecordV recordV = new RecordV();
                       recordV.setCodiceFiscaleMittente(
                           cacheInstitutionData.getMittenteCodiceFiscale());
                       recordV.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
                       recordV.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
-                      recordV.setProgressivoInvioFlussoMarcheDigitali(vRecordCounter);
+                      recordV.setProgressivoInvioFlussoMarcheDigitali(progressivo);
                       recordV.setImprontaDocumentoInformatico(digestValueBase64);
                       recordV.setIubd(tipoMarcaDaBollo.getIUBD());
                       recordV.setCodiceFiscalePsp(tipoMarcaDaBollo.getPSP().getCodiceFiscale());
                       recordV.setDenominazionePsp(tipoMarcaDaBollo.getPSP().getDenominazione());
                       recordV.setDataDiVendita(tipoMarcaDaBollo.getOraAcquisto().toString());
-                      vRecordCounter++;
                       return recordV;
                     })
                 .toList();
@@ -236,7 +256,7 @@ public class GenerateReportingService {
             cacheInstitutionData.getCodiceTrasmissivo()
                 + "AT"
                 + CODICE_FLUSSO_NORMALE
-                + "."
+                + ".S"
                 + pa.getCreditorInstitutionCode()
                 + ".D"
                 + now.getYear()
