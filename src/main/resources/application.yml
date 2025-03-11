@@ -41,6 +41,7 @@ mbd:
       cron: ${CACHE_REFRESH_CRON:-}
   rendicontazioni:
     filePath: ${HOME}
+    maxVRecords: ${MAX_RECORD_V_PER_FILE:100_000}
     generate:
       enabled: ${RENDICONTAZIONI_GENERATE_ENABLED:true}
       cron: ${RENDICONTAZIONI_GENERATE_CRON:-}

@@ -57,7 +57,7 @@ public class CosmosDBConfig extends AbstractCosmosConfiguration {
         .directMode(directConnectionConfig, gatewayConnectionConfig)
         .endpointDiscoveryEnabled(endpointDiscoveryEnabled)
         .preferredRegions(preferredRegions)
-        .consistencyLevel(ConsistencyLevel.EVENTUAL);
+        .consistencyLevel(ConsistencyLevel.BOUNDED_STALENESS);
   }
 
   @Override

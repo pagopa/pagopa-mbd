@@ -16,6 +16,7 @@ import it.gov.pagopa.mbd.util.CacheInstitutionData;
 import it.gov.pagopa.mbd.util.CommonUtility;
 import it.gov.pagopa.mbd.util.JaxbElementUtil;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -27,6 +28,8 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -43,248 +46,261 @@ import org.springframework.stereotype.Service;
 @ConditionalOnProperty(prefix = "mbd.rendicontazioni.generate", name = "enabled")
 public class GenerateReportingService {
 
-  private static final DateTimeFormatter formatterHours = DateTimeFormatter.ofPattern("HHmmss");
-  private static final String CODICE_FLUSSO_NORMALE = "A5";
-  private static final int DAY_OF_YEAR_LEN = 3;
+	private static final DateTimeFormatter formatterHours = DateTimeFormatter.ofPattern("HHmmss");
+	private static final String CODICE_FLUSSO_NORMALE = "A5";
+	private static final int DAY_OF_YEAR_LEN = 3;
+	
 
-  private final ConfigCacheService configCacheService;
-  private final BizEventRepository bizEventRepository;
+	private final ConfigCacheService configCacheService;
+	private final BizEventRepository bizEventRepository;
+	private final JaxbElementUtil jaxbElementUtil;
 
-  private final JaxbElementUtil jaxbElementUtil;
+	@Value("${mbd.rendicontazioni.filePath}")
+	private String fileSystemPath;
+	
+	@Value("${mbd.rendicontazioni.maxVRecords}")
+	private int maxVRecordPerFile; // Maximum record limit per file
+	
+	// progressivo starts from 1 for each PA and increments both when processing a new PA and when the number of records in a file exceeds the allowed limit, 
+	// requiring the creation of an additional file for the same PA.
+	private long progressivo = 1L;
+	
+	public void execute(LocalDate date, String[] organizationsRequest) {
+		log.info("Start MBD reporting generation {}", date);
+		
+		// at each execution the progressive is initialized to one
+		progressivo = 1L;
 
-  @Value("${mbd.rendicontazioni.filePath}")
-  private String fileSystemPath;
+		try {
+			// c.timestamp in Cosmos DB biz event is a UNIX timestamp in milliseconds
+			// long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+			// long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).toEpochMilli();
 
-  public void execute(LocalDate date, String[] organizationsRequest) {
-    log.info("generate reporting MBD for {}", date);
+			// c._ts in Cosmos DB biz event is a UNIX timestamp in seconds
+			long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
+			long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).getEpochSecond();
 
-    try {
-      // c.timestamp in Cosmos DB biz event is a UNIX timestamp in
-      // milliseconds
-      // long dateFrom =
-      // date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-      // long dateTo =
-      // date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).toEpochMilli();
+			CacheInstitutionData cacheInstitutionData = loadInstitutionData();
 
-      // c._ts in Cosmos DB biz event is a UNIX timestamp in seconds
-      long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
-      long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).getEpochSecond();
+			DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(
+					CommonUtility.getConfigKeyValueCache(
+							configCacheService.getConfigData().getConfigurations(),
+							"rendicontazioni-bollo.dateFormat"
+							)
+					);
 
-      String rendicontazioneBolloDateFormat =
-          CommonUtility.getConfigKeyValueCache(
-              configCacheService.getConfigData().getConfigurations(),
-              "rendicontazioni-bollo.dateFormat");
-      String mittenteCodiceFiscale =
-          CommonUtility.getConfigKeyValueCache(
-              configCacheService.getConfigData().getConfigurations(),
-              "rendicontazioni-bollo.mittente.codiceFiscale");
-      String intermediarioDenominazione =
-          CommonUtility.getConfigKeyValueCache(
-              configCacheService.getConfigData().getConfigurations(),
-              "rendicontazioni-bollo.intermediario.denominazione");
+			Map<String, CreditorInstitutionDto> organizations = configCacheService.getConfigData().getCreditorInstitutions();
 
-      String intermediarioComune =
-          CommonUtility.getConfigKeyValueCache(
-              configCacheService.getConfigData().getConfigurations(),
-              "rendicontazioni-bollo.intermediario.comuneDomicilioFiscale");
-      String intermediarioSiglaProvincia =
-          CommonUtility.getConfigKeyValueCache(
-              configCacheService.getConfigData().getConfigurations(),
-              "rendicontazioni-bollo.intermediario.siglaDellaProvinciaDelDomicilioFiscale");
-      String intermediarioCap =
-          CommonUtility.getConfigKeyValueCache(
-              configCacheService.getConfigData().getConfigurations(),
-              "rendicontazioni-bollo.intermediario.CAPDelDomicilioFiscale");
-      String intermediarioIndirizzo =
-          CommonUtility.getConfigKeyValueCache(
-              configCacheService.getConfigData().getConfigurations(),
-              "rendicontazioni-bollo.intermediario.indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscale");
-      String codiceTrasmissivo =
-          CommonUtility.getConfigKeyValueCache(
-              configCacheService.getConfigData().getConfigurations(),
-              "rendicontazioni-bollo.codiceIdentificativo.1");
+			// filter and sort the PAs based on idDominio in ascending order
+			List<CreditorInstitutionDto> ecs = organizations.values().stream()
+					.filter(pa -> organizationsRequest == null || organizationsRequest.length == 0 ||
+					Arrays.asList(organizationsRequest).contains(pa.getCreditorInstitutionCode()))
+					.sorted(Comparator.comparing(CreditorInstitutionDto::getCreditorInstitutionCode))
+					.toList();
+			
+			for (CreditorInstitutionDto pa : ecs) {
+				processData(dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
+			}
 
-      CacheInstitutionData cacheInstitutionData =
-          CacheInstitutionData.builder()
-              .mittenteCodiceFiscale(mittenteCodiceFiscale)
-              .intermediarioDenominazione(intermediarioDenominazione)
-              .intermediarioComune(intermediarioComune)
-              .intermediarioSiglaProvincia(intermediarioSiglaProvincia)
-              .intermediarioCap(intermediarioCap)
-              .intermediarioIndirizzo(intermediarioIndirizzo)
-              .codiceTrasmissivo(codiceTrasmissivo)
-              .build();
+		} catch (Exception e) {
+			log.error("General error while generating MBD reports: {}", e.getMessage(), e);
+		}
+	}
 
-      DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(rendicontazioneBolloDateFormat);
-      Map<String, CreditorInstitutionDto> organizations =
-          configCacheService.getConfigData().getCreditorInstitutions();
+	private void processData(
+			long dateFrom,
+			long dateTo,
+			DateTimeFormatter dateFormat,
+			CreditorInstitutionDto pa,
+			CacheInstitutionData cacheInstitutionData,
+			long progressivo
+			) throws MBDReportingException {
+		try {
+			List<BizEventEntity> bizEvents = bizEventRepository.getBizEventsByDateFromAndDateToAndEC(
+					dateFrom, dateTo, pa.getCreditorInstitutionCode());
 
-      /*
-       * List<CreditorInstitutionDto> ecs = (organizationsRequest == null ||
-       * organizationsRequest.length == 0) ?
-       * organizations.values().stream().toList() :
-       * organizations.values().stream() .filter( o ->
-       * Arrays.asList(organizationsRequest)
-       * .contains(o.getCreditorInstitutionCode())) .toList();
-       */
+			if (!bizEvents.isEmpty()) {
+				LocalDateTime now = LocalDateTime.now();
+				String dataInvioFlusso = now.format(dateFormat);
 
-      // filter and sort the PAs based on idDominio in ascending order
-      List<CreditorInstitutionDto> ecs =
-          organizations.values().stream()
-              .filter(
-                  pa ->
-                      organizationsRequest == null
-                          || organizationsRequest.length == 0
-                          || Arrays.asList(organizationsRequest)
-                              .contains(pa.getCreditorInstitutionCode()))
-              .sorted(
-                  Comparator.comparing(CreditorInstitutionDto::getCreditorInstitutionCode)) // Sort
-              .toList();
+				List<String> mbdAttachments = bizEvents.stream()
+						.flatMap(b -> b.getTransferList().stream()
+								.map(Transfer::getMBDAttachment)
+								.filter(StringUtils::isNotBlank))
+						.toList();
 
-      // progressivo starts from 1 and increases for each PA
-      long progressivo = 1L;
-      for (CreditorInstitutionDto pa : ecs) {
-        processData(dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
-      }
-    } catch (Exception e) {
-      log.error("Error generating MBD reporting: {}", e.getMessage(), e);
-    }
-  }
+				List<RecordV> allRecordsV = createRecordVList(mbdAttachments, cacheInstitutionData, pa, dataInvioFlusso, progressivo);
 
-  private void processData(
-      long dateFrom,
-      long dateTo,
-      DateTimeFormatter dateFormat,
-      CreditorInstitutionDto pa,
-      CacheInstitutionData cacheInstitutionData,
-      long progressivo)
-      throws MBDReportingException {
-    try {
-      List<BizEventEntity> bizEvents =
-          bizEventRepository.getBizEventsByDateFromAndDateToAndEC(
-              dateFrom, dateTo, pa.getCreditorInstitutionCode());
+				//Split into files with a maximum of records
+				int totalChunks = (int) Math.ceil((double) allRecordsV.size() / maxVRecordPerFile);
+				
+				AtomicLong vRecordChunkProgressivo = new AtomicLong(progressivo);
+				
+				for (int chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+					int start = chunkIndex * maxVRecordPerFile;
+					int end = Math.min(start + maxVRecordPerFile, allRecordsV.size());
+					
+					long localProgressivo =  vRecordChunkProgressivo.getAndIncrement();
+					
+					// recordsV are updated with the new progressive
+					List<RecordV> recordsVChunk = allRecordsV.subList(start, end);
+					recordsVChunk.forEach(recV -> recV.setProgressivoInvioFlussoMarcheDigitali(localProgressivo));
 
-      if (!bizEvents.isEmpty()) {
+					// File creation for each chunk
+					writeReportFile(pa, cacheInstitutionData, now, localProgressivo, dataInvioFlusso, recordsVChunk);
+				}
+				
+				// Update global progressivo
+				this.progressivo = vRecordChunkProgressivo.get();
+				
+			} else {
+				log.info("No events found for PA {} in the date range {} to {} ", pa.getCreditorInstitutionCode(), dateFrom, dateTo);
+			}
 
-        LocalDateTime now = LocalDateTime.now();
-        String dataInvioFlusso = now.format(dateFormat);
+		} catch (Exception e) {
+			log.error("Error generating file for PA {}: {}", pa.getCreditorInstitutionCode(), e.getMessage(), e);
+			throw new MBDReportingException("Error generating file for PA " + pa.getCreditorInstitutionCode(), e);
+		}
+	}
 
-        RecordA recordA =
-            RecordA.builder()
-                .codiceFiscaleMittente(cacheInstitutionData.getMittenteCodiceFiscale())
-                .codiceFiscalePa(pa.getCreditorInstitutionCode())
-                .dataInvioFlussoMarcheDaBollo(dataInvioFlusso)
-                .progressivoInvioFlussoMarcheDigitali(progressivo)
-                .build();
+	private CacheInstitutionData loadInstitutionData() {
+		return CacheInstitutionData.builder()
+				.mittenteCodiceFiscale(CommonUtility.getConfigKeyValueCache(
+						configCacheService.getConfigData().getConfigurations(),
+						"rendicontazioni-bollo.mittente.codiceFiscale"))
+				.intermediarioDenominazione(CommonUtility.getConfigKeyValueCache(
+						configCacheService.getConfigData().getConfigurations(),
+						"rendicontazioni-bollo.intermediario.denominazione"))
+				.intermediarioComune(CommonUtility.getConfigKeyValueCache(
+						configCacheService.getConfigData().getConfigurations(),
+						"rendicontazioni-bollo.intermediario.comuneDomicilioFiscale"))
+				.intermediarioSiglaProvincia(CommonUtility.getConfigKeyValueCache(
+						configCacheService.getConfigData().getConfigurations(),
+						"rendicontazioni-bollo.intermediario.siglaDellaProvinciaDelDomicilioFiscale"))
+				.intermediarioCap(CommonUtility.getConfigKeyValueCache(
+						configCacheService.getConfigData().getConfigurations(),
+						"rendicontazioni-bollo.intermediario.CAPDelDomicilioFiscale"))
+				.intermediarioIndirizzo(CommonUtility.getConfigKeyValueCache(
+						configCacheService.getConfigData().getConfigurations(),
+						"rendicontazioni-bollo.intermediario.indirizzoFrazioneViaENumeroCivicoDelDomicilioFiscale"))
+				.codiceTrasmissivo(CommonUtility.getConfigKeyValueCache(
+						configCacheService.getConfigData().getConfigurations(),
+						"rendicontazioni-bollo.codiceIdentificativo.1"))
+				.build();
+	}
 
-        RecordM recordM = new RecordM();
-        recordM.setCodiceFiscaleMittente(cacheInstitutionData.getMittenteCodiceFiscale());
-        recordM.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
-        recordM.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
-        recordM.setProgressivoInvioFlussoMarcheDigitali(progressivo);
-        recordM.setDenominazionePa(pa.getBusinessName());
-        if (pa.getAddress() != null) {
-          recordM.setComuneDomicilioFiscalePa(pa.getAddress().getCity());
-          recordM.setSiglaDellaProvinciaDelDomicilioFiscalePa(pa.getAddress().getLocation());
-          recordM.setCapDelDomicilioFiscalePa(pa.getAddress().getZipCode());
-          recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscalePa(
-              pa.getAddress().getTaxDomicile());
-        }
-        recordM.setDemoninazioneIntermediario(cacheInstitutionData.getIntermediarioDenominazione());
-        recordM.setComuneDomicilioFiscaleIntermediario(
-            cacheInstitutionData.getIntermediarioComune());
-        recordM.setSiglaDellaProvinciaDelDomicilioFiscaleIntermediario(
-            cacheInstitutionData.getIntermediarioSiglaProvincia());
-        recordM.setCapDelDomicilioFiscaleIntermediario(
-            Long.parseLong(cacheInstitutionData.getIntermediarioCap()));
-        recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario(
-            cacheInstitutionData.getIntermediarioIndirizzo());
+	private List<RecordV> createRecordVList(List<String> mbdAttachments, CacheInstitutionData cacheInstitutionData, CreditorInstitutionDto pa, String dataInvioFlusso, long progressivo) {
+		return mbdAttachments.stream()
+				.map(mbdAttachment -> {
+					try {
+						TipoMarcaDaBollo tipoMarcaDaBollo = jaxbElementUtil.convertToBean(mbdAttachment, TipoMarcaDaBollo.class);
 
-        List<String> mbdAttachments =
-            bizEvents.stream()
-                .flatMap(
-                    b ->
-                        b.getTransferList().stream()
-                            .map(Transfer::getMBDAttachment)
-                            .filter(StringUtils::isNotBlank))
-                .toList();
+						String digestValueBase64 =
+								Base64.getEncoder()
+								.encodeToString(
+										tipoMarcaDaBollo.getImprontaDocumento().getDigestValue());
 
-        List<RecordV> recordsV =
-            mbdAttachments.stream()
-                .map(
-                    b -> {
-                      it.gov.agenziaentrate._2014.marcadabollo.TipoMarcaDaBollo tipoMarcaDaBollo =
-                          this.jaxbElementUtil.convertToBean(b, TipoMarcaDaBollo.class);
+						RecordV recordV = new RecordV();
+						recordV.setCodiceFiscaleMittente(
+								cacheInstitutionData.getMittenteCodiceFiscale());
+						recordV.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
+						recordV.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
+						recordV.setProgressivoInvioFlussoMarcheDigitali(progressivo);
+						recordV.setImprontaDocumentoInformatico(digestValueBase64);
+						recordV.setIubd(tipoMarcaDaBollo.getIUBD());
+						recordV.setCodiceFiscalePsp(tipoMarcaDaBollo.getPSP().getCodiceFiscale());
+						recordV.setDenominazionePsp(tipoMarcaDaBollo.getPSP().getDenominazione());
+						recordV.setDataDiVendita(tipoMarcaDaBollo.getOraAcquisto().toString());
+						return recordV;
+					} catch (Exception e) {
+						log.error("Error in JAXB conversion: {}", e.getMessage(), e);
+						return null;
+					}
+				})
+				.filter(r -> r != null)
+				.toList();
+	}
 
-                      String digestValueBase64 =
-                          Base64.getEncoder()
-                              .encodeToString(
-                                  tipoMarcaDaBollo.getImprontaDocumento().getDigestValue());
+	private void writeReportFile(CreditorInstitutionDto pa, CacheInstitutionData cacheInstitutionData, LocalDateTime now, long progressivo, String dataInvioFlusso, List<RecordV> recordsV) {
 
-                      RecordV recordV = new RecordV();
-                      recordV.setCodiceFiscaleMittente(
-                          cacheInstitutionData.getMittenteCodiceFiscale());
-                      recordV.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
-                      recordV.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
-                      recordV.setProgressivoInvioFlussoMarcheDigitali(progressivo);
-                      recordV.setImprontaDocumentoInformatico(digestValueBase64);
-                      recordV.setIubd(tipoMarcaDaBollo.getIUBD());
-                      recordV.setCodiceFiscalePsp(tipoMarcaDaBollo.getPSP().getCodiceFiscale());
-                      recordV.setDenominazionePsp(tipoMarcaDaBollo.getPSP().getDenominazione());
-                      recordV.setDataDiVendita(tipoMarcaDaBollo.getOraAcquisto().toString());
-                      return recordV;
-                    })
-                .toList();
+		RecordA recordA = createRecordA(cacheInstitutionData, pa, dataInvioFlusso, progressivo);
+		RecordM recordM = createRecordM(cacheInstitutionData, pa, dataInvioFlusso, progressivo);
+		RecordZ recordZ = createRecordZ(cacheInstitutionData, pa, dataInvioFlusso, progressivo, recordsV.size());
 
-        RecordZ recordZ = new RecordZ();
-        recordZ.setCodiceFiscaleMittente(cacheInstitutionData.getMittenteCodiceFiscale());
-        recordZ.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
-        recordZ.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
-        recordZ.setProgressivoInvioFlussoMarcheDigitali(progressivo);
-        recordZ.setNumeroRecordDiTipoV((long) recordsV.size());
+		String dayOfYear = String.valueOf(now.getDayOfYear());
+		String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
+		String fileName = cacheInstitutionData.getCodiceTrasmissivo() + "AT" + CODICE_FLUSSO_NORMALE +
+				".S" + pa.getCreditorInstitutionCode() +
+				".D" + now.getYear() + paddedDayOfYear +
+				"T" + now.format(formatterHours) + "_P" + progressivo;
 
-        StringBuilder contenutoFile = new StringBuilder();
-        contenutoFile.append(recordA.toLine()).append("\n");
-        contenutoFile.append(recordM.toLine()).append("\n");
-        recordsV.forEach(r -> contenutoFile.append(r.toLine()).append("\n"));
-        contenutoFile.append(recordZ.toLine());
+		String filePath = Paths.get(fileSystemPath, fileName).toString();
 
-        String dayOfYear = String.valueOf(now.getDayOfYear());
-        String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
+		StringBuilder fileContent = new StringBuilder();
+		fileContent.append(recordA.toLine()).append("\n")
+		.append(recordM.toLine()).append("\n");
+		recordsV.forEach(recV -> fileContent.append(recV.toLine()).append("\n"));
+		fileContent.append(recordZ.toLine());
 
-        String fileName =
-            cacheInstitutionData.getCodiceTrasmissivo()
-                + "AT"
-                + CODICE_FLUSSO_NORMALE
-                + ".S"
-                + pa.getCreditorInstitutionCode()
-                + ".D"
-                + now.getYear()
-                + paddedDayOfYear
-                + "T"
-                + now.format(formatterHours);
+		writeFile(filePath, fileContent.toString().getBytes(StandardCharsets.UTF_8));
+		log.info("File written successfully: {}", filePath);
+	}
 
-        byte[] contenutoFileBytes = contenutoFile.toString().getBytes(StandardCharsets.UTF_8);
-        writeFile(fileSystemPath + "/" + fileName, contenutoFileBytes);
-      }
-    } catch (Exception e) {
-      log.error(
-          "Error generating MBD reporting file for PA {}: {}",
-          pa.getCreditorInstitutionCode(),
-          e.getMessage(),
-          e);
-      throw new MBDReportingException(
-          "Error generating MBD reporting file for PA " + pa.getCreditorInstitutionCode(), e);
-    }
-  }
+	private RecordA createRecordA(CacheInstitutionData cacheInstitutionData, CreditorInstitutionDto pa, String dataInvioFlusso, long progressivo) {
+		return RecordA.builder()
+				.codiceFiscaleMittente(cacheInstitutionData.getMittenteCodiceFiscale())
+				.codiceFiscalePa(pa.getCreditorInstitutionCode())
+				.dataInvioFlussoMarcheDaBollo(dataInvioFlusso)
+				.progressivoInvioFlussoMarcheDigitali(progressivo)
+				.build();
+	}
 
-  @Async
-  public void recovery(LocalDate from, LocalDate to, String[] organizations) {
-    log.info("recovery rendicontazioni MBD dal {} al {}", from, to);
-    LocalDate date = from;
-    do {
-      execute(date, organizations);
-      date = date.plusDays(1);
-    } while (date.isBefore(to));
-  }
+	private RecordM createRecordM(CacheInstitutionData cacheInstitutionData, CreditorInstitutionDto pa, String dataInvioFlusso, long progressivo) {
+		RecordM recordM = new RecordM();
+		recordM.setCodiceFiscaleMittente(cacheInstitutionData.getMittenteCodiceFiscale());
+		recordM.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
+		recordM.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
+		recordM.setProgressivoInvioFlussoMarcheDigitali(progressivo);
+		recordM.setDenominazionePa(pa.getBusinessName());
+		if (pa.getAddress() != null) {
+			recordM.setComuneDomicilioFiscalePa(pa.getAddress().getCity());
+			recordM.setSiglaDellaProvinciaDelDomicilioFiscalePa(pa.getAddress().getLocation());
+			recordM.setCapDelDomicilioFiscalePa(pa.getAddress().getZipCode());
+			recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscalePa(
+					pa.getAddress().getTaxDomicile());
+		}
+		recordM.setDemoninazioneIntermediario(cacheInstitutionData.getIntermediarioDenominazione());
+		recordM.setComuneDomicilioFiscaleIntermediario(
+				cacheInstitutionData.getIntermediarioComune());
+		recordM.setSiglaDellaProvinciaDelDomicilioFiscaleIntermediario(
+				cacheInstitutionData.getIntermediarioSiglaProvincia());
+		recordM.setCapDelDomicilioFiscaleIntermediario(
+				Long.parseLong(cacheInstitutionData.getIntermediarioCap()));
+		recordM.setIndirizzoFrazioneViaENumeroCivicoDelDomicilioFiscaleIntermediario(
+				cacheInstitutionData.getIntermediarioIndirizzo());
+
+		return recordM;
+	}
+
+	private RecordZ createRecordZ(CacheInstitutionData cacheInstitutionData, CreditorInstitutionDto pa, String dataInvioFlusso, long progressivo, int totalRecordsV) { 	
+		RecordZ recordZ = new RecordZ();
+		recordZ.setCodiceFiscaleMittente(cacheInstitutionData.getMittenteCodiceFiscale());
+		recordZ.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
+		recordZ.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
+		recordZ.setProgressivoInvioFlussoMarcheDigitali(progressivo);
+		recordZ.setNumeroRecordDiTipoV((long) totalRecordsV);
+
+		return recordZ;
+	}
+
+	@Async
+	public void recovery(LocalDate from, LocalDate to, String[] organizations) {
+		log.info("MBD reporting recovery from {} to {}", from, to);
+		LocalDate date = from;
+		do {
+			execute(date, organizations);
+			date = date.plusDays(1);
+		} while (date.isBefore(to));
+	}
 }
+
