@@ -35,7 +35,7 @@ microservice-chart:
     path: /pagopa-mbd(/|$)(.*)
     servicePort: 8080
   serviceAccount:
-    name: "mbd-workload-identity"
+    name: "nodo-workload-identity"
   azure:
     workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
   podAnnotations: { }

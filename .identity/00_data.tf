@@ -23,7 +23,7 @@ data "azurerm_user_assigned_identity" "identity_cd" {
 }
 
 data "azurerm_user_assigned_identity" "workload_identity_clientid" {
-  name                = "mbd-workload-identity"
+  name                = "nodo-workload-identity"
   resource_group_name = "pagopa-${var.env_short}-weu-${var.env}-aks-rg"
 }
 
