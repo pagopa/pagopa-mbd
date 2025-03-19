@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-mbd
-    tag: "0.0.0"
+    tag: "0.0.0-1-PAGOPA-2749-make-service-work"
     pullPolicy: Always
   livenessProbe:
     httpGet:
@@ -34,9 +34,9 @@ microservice-chart:
     servicePort: 8080
   serviceAccount:
     create: false
-    annotations: { }
+    annotations: {}
     name: ""
-  podAnnotations: { }
+  podAnnotations: {}
   podSecurityContext:
     seccompProfile:
       type: RuntimeDefault
@@ -98,8 +98,8 @@ microservice-chart:
   keyvault:
     name: "pagopa-p-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
-  nodeSelector: { }
-  tolerations: [ ]
+  nodeSelector: {}
+  tolerations: []
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
@@ -110,7 +110,7 @@ microservice-chart:
                 values:
                   - user
   canaryDelivery:
-    create: true
+    create: false
     ingress:
       create: true
       canary:
@@ -126,6 +126,5 @@ microservice-chart:
         repository: ghcr.io/pagopa/pagopa-mbd
         tag: "0.0.0"
         pullPolicy: Always
-      envConfig: { }
-      envSecret: { }
-
+      envConfig: {}
+      envSecret: {}
