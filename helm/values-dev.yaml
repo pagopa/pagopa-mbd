@@ -77,7 +77,7 @@ microservice-chart:
     COSMOS_URI: 'https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
     COSMOS_ENDPOINT_DISCOVERY_ENABLED: 'true'
     COSMOS_PREFERRED_REGIONS: 'North Europe'
-    CACHE_REFRESH_ENABLED: false
+    CACHE_REFRESH_ENABLED: 'false'
     CACHE_REFRESH_CRON: '-'
     HOME: '/tmp'
     RENDICONTAZIONI_GENERATE_ENABLED: 'true'
