@@ -6,5 +6,5 @@ version: 0.5.0
 appVersion: 0.0.0-5-PAGOPA-2749-make-service-work
 dependencies:
   - name: microservice-chart
-    version: 5.9.0
+    version: 7.1.1
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
