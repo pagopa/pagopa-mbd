@@ -73,6 +73,7 @@ spring:
 springdoc:
   writer-with-order-by-keys: 'true'
   writer-with-default-pretty-printer: 'true'
+  model-and-view-allowed: 'true'
 log:
   server:
     request:
