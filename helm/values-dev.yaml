@@ -22,6 +22,8 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
+  ports:
+    - 8080    
   service:
     create: true
     type: ClusterIP
