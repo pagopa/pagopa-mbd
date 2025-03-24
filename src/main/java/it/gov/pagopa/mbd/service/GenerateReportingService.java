@@ -232,7 +232,7 @@ public class GenerateReportingService {
 		String fileName = cacheInstitutionData.getCodiceTrasmissivo() + "AT" + CODICE_FLUSSO_NORMALE +
 				".S" + pa.getCreditorInstitutionCode() +
 				".D" + now.getYear() + paddedDayOfYear +
-				"T" + now.format(formatterHours) + "_P" + progressivo;
+				"T" + now.format(formatterHours);
 
 		String filePath = Paths.get(fileSystemPath, fileName).toString();
 
