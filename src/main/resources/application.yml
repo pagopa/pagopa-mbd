@@ -25,13 +25,15 @@ info:
     description: '@project.description@'
     artifactId: '@project.artifactId@'
   properties:
-    environment: ${ENV:azure}
+    environment: ${ENV:local}
 azure:
   cosmos:
     database: db
     uri: ${COSMOS_URI:https://pagopa-d-weu-bizevents-ds-cosmos-account.documents.azure.com:443/}
     key: ${COSMOS_KEY:-}
     populate-query-metrics: 'false'
+    endpoint-discovery-enabled: ${COSMOS_ENDPOINT_DISCOVERY_ENABLED:false}
+    preferred-regions: ${COSMOS_PREFERRED_REGIONS:West Europe,North Europe}
 mbd:
   cache:
     refresh:
@@ -39,6 +41,7 @@ mbd:
       cron: ${CACHE_REFRESH_CRON:-}
   rendicontazioni:
     filePath: ${HOME}
+    maxVRecords: ${MAX_RECORD_V_PER_FILE:100_000}
     generate:
       enabled: ${RENDICONTAZIONI_GENERATE_ENABLED:true}
       cron: ${RENDICONTAZIONI_GENERATE_CRON:-}
@@ -70,6 +73,7 @@ spring:
 springdoc:
   writer-with-order-by-keys: 'true'
   writer-with-default-pretty-printer: 'true'
+  model-and-view-allowed: 'true'
 log:
   server:
     request:

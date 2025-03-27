@@ -4,7 +4,7 @@
     "description": "A microservice that permits to handle Digital Stamps in pagoPA platform",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "pagopa-mbd",
-    "version": "0.0.1"
+    "version": "0.0.0-12-PAGOPA-2749-make-service-work"
   },
   "servers": [
     {
@@ -130,7 +130,6 @@
           }
         ],
         "tags": [
-          "Redirect",
           "Recovery"
         ]
       }
