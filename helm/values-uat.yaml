@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-mbd
-    tag: "0.1.0-1-upd-helm-deploy"
+    tag: "0.1.0-2-upd-helm-deploy"
     pullPolicy: Always
   livenessProbe:
     handlerType: tcpSocket

@@ -12,7 +12,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>pagopa-mbd</artifactId>
-    <version>0.1.0-1-upd-helm-deploy</version>
+    <version>0.1.0-2-upd-helm-deploy</version>
     <name>pagoPA MBD</name>
     <description>A microservice that permits to handle Digital Stamps in pagoPA platform</description>
 
