@@ -84,6 +84,7 @@ jobs:
 
       - if: ${{ inputs.version == 'skip_or_promote' }}
         run: echo "SEMVER=skip" >> $GITHUB_ENV
+
       - id: get_semver
         name: Set Output
         run: echo "semver=${{env.SEMVER}}" >> $GITHUB_OUTPUT
@@ -134,7 +135,7 @@ jobs:
     name: Deploy on AKS
     needs: [ setup, release, image ]
     if: ${{ always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled') }}
-    uses: ./.github/workflows/04h_deploy_with_github_runner.yml
+    uses: ./.github/workflows/04_deploy_with_github_runner.yml
     with:
       environment: ${{ needs.setup.outputs.environment }}
     secrets: inherit
