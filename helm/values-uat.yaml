@@ -68,7 +68,6 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    # TODO: set your name
     WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
     ENV: 'uat'
     APP_LOGGING_LEVEL: 'DEBUG'
