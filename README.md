@@ -10,7 +10,8 @@ A microservice that permits to handle Digital Stamps (Marca da Bollo) in pagoPA 
 ## Api Documentation 📖
 
 See
-the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/<TODO-repo>/main/openapi/openapi.json)
+the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-mbd/refs/heads/main/openapi/openapi.json)
+
 
 ---
 
