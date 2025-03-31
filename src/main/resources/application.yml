@@ -42,6 +42,7 @@ mbd:
   rendicontazioni:
     filePath: ${HOME}
     maxVRecords: ${MAX_RECORD_V_PER_FILE:100_000}
+    maxStampsForVRecord: ${MAX_STAMPS_FOR_RECORD_V:10}
     generate:
       enabled: ${RENDICONTAZIONI_GENERATE_ENABLED:true}
       cron: ${RENDICONTAZIONI_GENERATE_CRON:-}
