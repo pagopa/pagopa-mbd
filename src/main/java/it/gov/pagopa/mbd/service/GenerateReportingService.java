@@ -60,10 +60,10 @@ public class GenerateReportingService {
   private String fileSystemPath;
 
   @Value("${mbd.rendicontazioni.maxVRecords}")
-  private int maxVRecordPerFile; // Maximum record limit per file
+  private int maxVRecordPerFile; // Maximum record limit per file (row size)
 
   @Value("${mbd.rendicontazioni.maxStampsForVRecord}")
-  private int maxStampsForVRecord; // Maximum number of digital tax stamps per RecordV
+  private int maxStampsForVRecord; // Maximum number of digital tax stamps per RecordV (column size)
 
   // progressivo starts from 1 for each PA and increments both when processing a new PA and when the
   // number of records in a file exceeds the allowed limit,
@@ -261,6 +261,7 @@ public class GenerateReportingService {
           rawList.subList(i, Math.min(i + maxStampsForVRecord, rawList.size()));
 
       RecordV recordV = new RecordV();
+      recordV.setMaxStampsForVRecord(maxStampsForVRecord);
       recordV.setCodiceFiscaleMittente(cacheInstitutionData.getMittenteCodiceFiscale());
       recordV.setCodiceFiscalePa(pa.getCreditorInstitutionCode());
       recordV.setDataInvioFlussoMarcheDigitali(dataInvioFlusso);
@@ -288,6 +289,8 @@ public class GenerateReportingService {
 
     String dayOfYear = String.valueOf(now.getDayOfYear());
     String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
+    // Currently, no checks are in place to prevent file overwriting if multiple files are generated within the same second. 
+    // However, the current value of 'maxVRecordPerFile' and 'maxStampsForVRecord' makes this scenario extremely unlikely.
     String fileName =
         cacheInstitutionData.getCodiceTrasmissivo()
             + "AT"
@@ -298,7 +301,7 @@ public class GenerateReportingService {
             + now.getYear()
             + paddedDayOfYear
             + "T"
-            + now.format(formatterHours);
+            + LocalDateTime.now().format(formatterHours);
 
     String filePath = Paths.get(fileSystemPath, fileName).toString();
 

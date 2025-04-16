@@ -43,6 +43,7 @@ public class RecordV implements Record {
   private String dataDiVendita;
   private String filler;
   private List<MarcaDaBolloRaw> marche;
+  private int maxStampsForVRecord = 10; // Maximum number of digital tax stamps per RecordV (column size)
 
   public String toLine() {
     StringBuilder line = new StringBuilder();
@@ -97,7 +98,7 @@ public class RecordV implements Record {
     }
 
     // Filling if less than maximum number of digital tax stamps per RecordV
-    for (int i = added; i < 10; i++) {
+    for (int i = added; i < maxStampsForVRecord; i++) {
       line.append(
           CsvUtils.toFixedLength(
               "",
