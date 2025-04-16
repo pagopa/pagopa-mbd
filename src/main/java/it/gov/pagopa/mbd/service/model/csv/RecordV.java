@@ -119,26 +119,4 @@ public class RecordV implements Record {
                 ' '));
     return line.toString();
   }
-
-  /*
-  public String toLine() {
-      StringBuilder line = new StringBuilder(CsvUtils.toFixedLength(TIPO_RECORD, TIPO_RECORD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(CODICE_FLUSSO, CODICE_FLUSSO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(codiceFiscaleMittente, CODICE_FISCALE_MITTENTE_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(codiceFiscalePa, CODICE_FISCALE_PA_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(dataInvioFlussoMarcheDigitali, DATA_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(progressivoInvioFlussoMarcheDigitali, PROG_INVIO_FLUSSO_MD_LEN, RecordAlignEnum.ALIGN_RIGHT, '0') +
-              CsvUtils.toFixedLength(TIPO_MODELLO, TIPO_MODELLO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(improntaDocumentoInformatico, IMPRONTA_DOCUMENTO_INFORMATICO_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(iubd, IUBD_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(codiceFiscalePsp, CF_PSP_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(denominazionePsp, DENOMINAZIONE_PSP_LEN, RecordAlignEnum.ALIGN_LEFT, ' ') +
-              CsvUtils.toFixedLength(dataDiVendita, DATA_VENDITA_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
-      for (int i = 0; i <= 10; i++) {
-          line.append(CsvUtils.toFixedLength("", IMPRONTA_DOCUMENTO_INFORMATICO_LEN + IUBD_LEN + CF_PSP_LEN + DENOMINAZIONE_PSP_LEN + DATA_VENDITA_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
-      }
-      line.append(CsvUtils.toFixedLength(filler, FILLER_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
-      line.append(CsvUtils.toFixedLength(CARATTERE_DI_CONTROLLO_CHIUSURA_RECORD, CARATTERE_CONTROLLO_CHIUSURA_LEN, RecordAlignEnum.ALIGN_LEFT, ' '));
-      return line.toString();
-  }*/
 }
