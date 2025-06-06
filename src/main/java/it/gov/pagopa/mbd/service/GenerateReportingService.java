@@ -16,6 +16,8 @@ import it.gov.pagopa.mbd.service.model.csv.RecordZ;
 import it.gov.pagopa.mbd.util.CacheInstitutionData;
 import it.gov.pagopa.mbd.util.CommonUtility;
 import it.gov.pagopa.mbd.util.JaxbElementUtil;
+
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -58,6 +60,12 @@ public class GenerateReportingService {
 
   @Value("${mbd.rendicontazioni.filePath}")
   private String fileSystemPath;
+  
+  @Value("${mbd.rendicontazioni.maxRetries:3}")
+  private int maxRetries;
+
+  @Value("${mbd.rendicontazioni.retryDelayMillis:2000}")
+  private long retryDelayMillis;
 
   @Value("${mbd.rendicontazioni.maxVRecords}")
   private int maxVRecordPerFile; // Maximum record limit per file (row size)
@@ -72,6 +80,12 @@ public class GenerateReportingService {
 
   public void execute(LocalDate date, String[] organizationsRequest) {
     log.info("Start MBD reporting generation {}", date);
+    
+    File dir = new File(fileSystemPath);
+    if (!dir.exists()) {
+      log.warn("Mount path {} does not exist. It may indicate the Azure File Share is not mounted.", fileSystemPath);
+      return;
+    }
 
     // at each execution the progressive is initialized to one
     progressivo = 1L;

@@ -9,3 +9,5 @@ logging:
     it:
       gov:
         pagopa: DEBUG
+rendicontazioni:
+  filePath: /mnt/firmatore/${ENV:local}/SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre/
