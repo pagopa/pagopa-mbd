@@ -4,6 +4,8 @@ import static it.gov.pagopa.mbd.util.CsvUtils.writeFile;
 
 import it.gov.agenziaentrate._2014.marcadabollo.TipoMarcaDaBollo;
 import it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto;
+import it.gov.pagopa.mbd.config.RetryConfig;
+import it.gov.pagopa.mbd.config.RetryExecutor;
 import it.gov.pagopa.mbd.exception.MBDReportingException;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
 import it.gov.pagopa.mbd.repository.model.BizEventEntity;
@@ -16,6 +18,8 @@ import it.gov.pagopa.mbd.service.model.csv.RecordZ;
 import it.gov.pagopa.mbd.util.CacheInstitutionData;
 import it.gov.pagopa.mbd.util.CommonUtility;
 import it.gov.pagopa.mbd.util.JaxbElementUtil;
+
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -55,6 +59,9 @@ public class GenerateReportingService {
   private final ConfigCacheService configCacheService;
   private final BizEventRepository bizEventRepository;
   private final JaxbElementUtil jaxbElementUtil;
+  
+  private final RetryExecutor retryExecutor;
+  private final RetryConfig retryConfig;
 
   @Value("${mbd.rendicontazioni.filePath}")
   private String fileSystemPath;
@@ -72,6 +79,12 @@ public class GenerateReportingService {
 
   public void execute(LocalDate date, String[] organizationsRequest) {
     log.info("Start MBD reporting generation {}", date);
+    
+    File dir = new File(fileSystemPath);
+    if (!dir.exists()) {
+      log.warn("Mount path {} does not exist. It may indicate the Azure File Share is not mounted.", fileSystemPath);
+      return;
+    }
 
     // at each execution the progressive is initialized to one
     progressivo = 1L;
@@ -309,9 +322,27 @@ public class GenerateReportingService {
     fileContent.append(recordA.toLine()).append("\n").append(recordM.toLine()).append("\n");
     recordsV.forEach(recV -> fileContent.append(recV.toLine()).append("\n"));
     fileContent.append(recordZ.toLine());
+    
+    /*retryExecutor.executeWithRetry(context -> {
+        writeFile(filePath, fileContent.toString().getBytes(StandardCharsets.UTF_8));
+        log.info("File written successfully (attempt {}): {}", context.getRetryCount() + 1, filePath);
+        return null;
+    });*/
+    
+    retryExecutor.executeWithRetry(context -> {
+        writeFile(filePath, fileContent.toString().getBytes(StandardCharsets.UTF_8));
+        log.info("File written successfully (attempt {}): {}", context.getRetryCount() + 1, filePath);
+        return null;
+    }, 
+    // Callback
+    exception -> {
+        log.error("File write failed after retrying {} times. Error: {}", retryConfig.getMaxAttempts(), exception.getMessage(), exception);
+        // Invia notifica di errore
+        sendErrorNotification(exception);
+    });
 
-    writeFile(filePath, fileContent.toString().getBytes(StandardCharsets.UTF_8));
-    log.info("File written successfully: {}", filePath);
+    //writeFile(filePath, fileContent.toString().getBytes(StandardCharsets.UTF_8));
+    //log.info("File written successfully: {}", filePath);
   }
 
   private RecordA createRecordA(
@@ -371,6 +402,12 @@ public class GenerateReportingService {
     recordZ.setNumeroRecordDiTipoV((long) totalRecordsV);
 
     return recordZ;
+  }
+  
+  private void sendErrorNotification(Exception exception) {
+	  String errorMessage = "MBD file generation failed: " + exception.getMessage();
+	  log.error(errorMessage);
+	  //TODO send notification?
   }
 
   @Async

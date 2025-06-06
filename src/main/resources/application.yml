@@ -46,6 +46,10 @@ mbd:
     generate:
       enabled: ${RENDICONTAZIONI_GENERATE_ENABLED:true}
       cron: ${RENDICONTAZIONI_GENERATE_CRON:-}
+    retry:
+       maxAttempts: ${RENDICONTAZIONI_MAX_ATTEMPTS:3}
+       delayMillis: ${RENDICONTAZIONI_DELAY:2000}
+       multiplier: ${RENDICONTAZIONI_MULTIPLIER:2.0}
 client:
   cache:
     url: ${CLIENT_CACHE_URL:none}
