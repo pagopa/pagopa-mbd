@@ -20,7 +20,7 @@ class RetryExecutorTest {
     void setUp() {
         RetryConfig config = new RetryConfig();
         config.setMaxAttempts(3);
-        config.setDelay(100); // millis
+        config.setDelayMillis(100);
         config.setMultiplier(1.0); // no backoff increase
 
         retryExecutor = new RetryExecutor(config);

@@ -26,7 +26,7 @@ public class RetryExecutor {
         retryPolicy.setMaxAttempts(retryConfig.getMaxAttempts());
 
         ExponentialBackOffPolicy backOffPolicy = new ExponentialBackOffPolicy();
-        backOffPolicy.setInitialInterval(retryConfig.getDelay());
+        backOffPolicy.setInitialInterval(retryConfig.getDelayMillis());
         backOffPolicy.setMultiplier(retryConfig.getMultiplier());
 
         retryTemplate.setRetryPolicy(retryPolicy);

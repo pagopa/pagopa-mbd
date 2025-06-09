@@ -10,6 +10,6 @@ import lombok.Data;
 @ConfigurationProperties(prefix = "mbd.retry")
 public class RetryConfig {
 	private int maxAttempts;
-    private long delay;
+    private long delayMillis;
     private double multiplier;
 }
