@@ -289,7 +289,7 @@ public class GenerateReportingService {
     return recordVList;
   }
 
-  private void writeReportFile(
+  void writeReportFile(
 		  CreditorInstitutionDto pa,
 		  CacheInstitutionData cacheInstitutionData,
 		  LocalDateTime now,

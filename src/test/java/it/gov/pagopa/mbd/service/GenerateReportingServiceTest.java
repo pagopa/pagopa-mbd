@@ -1,9 +1,15 @@
-package it.gov.pagopa.mbd;
+package it.gov.pagopa.mbd.service;
 
+import it.gov.pagopa.mbd.Application;
+import it.gov.pagopa.mbd.exception.MBDRetryException;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
 import it.gov.pagopa.mbd.service.ConfigCacheService;
 import it.gov.pagopa.mbd.service.GenerateReportingService;
+import it.gov.pagopa.mbd.service.model.csv.RecordV;
+import it.gov.pagopa.mbd.util.CsvUtils;
 import it.gov.pagopa.mbd.utils.TestUtils;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,8 +24,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.util.CollectionUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +52,15 @@ class GenerateReportingServiceTest {
     @Autowired private ConfigCacheService configCacheService;
     
     @Autowired private ApplicationContext applicationContext;
+    
+    @Autowired
+    private it.gov.pagopa.mbd.config.RetryExecutor retryExecutor;
+
+    @Autowired
+    private it.gov.pagopa.mbd.config.RetryConfig retryConfig;
+    
+    @Autowired
+    private GenerateReportingService generateReportingService;
 
     @MockBean
     private BizEventRepository bizEventRepository;
@@ -105,5 +125,42 @@ class GenerateReportingServiceTest {
                             assertNotNull(result);
                             assertNotNull(result.getResponse());
                         });
+    }
+    
+    @Test
+    void testWriteReportFileWithRetryFailure() throws Exception {
+        // Mock CsvUtils to throw IOException on writeFile
+        var csvUtilsMock = mockStatic(CsvUtils.class);
+        csvUtilsMock.when(() -> CsvUtils.writeFile(any(), any())).thenThrow(new UncheckedIOException("Write failed!", new IOException()));
+
+        // Prepare test data
+        var pa = TestUtils.getCreditorInstitutionDto();
+        var cacheInstitutionData = TestUtils.getCacheInstitutionData();
+        var now = LocalDateTime.now();
+        long progressivo = 1;
+        String dataInvioFlusso = "20250610";
+        var recordsV = Collections.<RecordV>emptyList();
+
+        // Set retry configuration
+        retryConfig.setMaxAttempts(2);
+        retryConfig.setDelayMillis(10);
+        retryConfig.setMultiplier(1.0);
+
+        String expectedMsgPart = "File write failed after retrying 2 times";
+
+        // Execute the method and expect MBDRetryException
+        Exception ex = Assertions.assertThrows(
+        		MBDRetryException.class,
+        		() -> generateReportingService.writeReportFile(
+        				pa, cacheInstitutionData, now, progressivo, dataInvioFlusso, recordsV,
+        				now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+        				now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        				)
+        		);
+
+        Assertions.assertTrue(ex.getMessage().contains(expectedMsgPart));
+        Assertions.assertTrue(ex.getMessage().contains("Write failed!"));
+
+        csvUtilsMock.close();
     }
 }
