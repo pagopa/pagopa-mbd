@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-mbd
-    tag: "0.1.3"
+    tag: "0.1.3-1-PAGOPA-3017-save-retry-csv"
     pullPolicy: Always
   livenessProbe:
     handlerType: tcpSocket
@@ -24,14 +24,14 @@ microservice-chart:
     create: true
     replicas: 1
     providedVolumeMount:
-       create: true
-       envSecrets:
-         azurestorageaccountname: "mbd-storage-name"
-         azurestorageaccountkey: "mbd-storage-key"
-       folders:
-         - name: firmatore
-           readOnly: false
-           mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"
+      create: true
+      envSecrets:
+        azurestorageaccountname: "mbd-storage-name"
+        azurestorageaccountkey: "mbd-storage-key"
+      folders:
+        - name: firmatore
+          readOnly: false
+          mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"
   serviceMonitor:
     create: true
     endpoints:
