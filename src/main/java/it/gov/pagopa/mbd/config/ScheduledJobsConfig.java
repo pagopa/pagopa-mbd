@@ -29,7 +29,7 @@ public class ScheduledJobsConfig {
     }
 
 
-    @Scheduled(cron = "${mbd.rendicontazioni.genera.cron:-}")
+    @Scheduled(cron = "${mbd.rendicontazioni.generate.cron:-}")
     public void generateReporting() throws MBDReportingException {
         LocalDate date = LocalDate.now();
         log.info("[Scheduled] Starting genera rendicontazioni mbd for {}", date);
