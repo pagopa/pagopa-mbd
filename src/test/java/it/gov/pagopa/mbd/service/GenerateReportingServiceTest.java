@@ -3,14 +3,14 @@ package it.gov.pagopa.mbd.service;
 import it.gov.pagopa.mbd.Application;
 import it.gov.pagopa.mbd.exception.MBDRetryException;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
-import it.gov.pagopa.mbd.service.ConfigCacheService;
-import it.gov.pagopa.mbd.service.GenerateReportingService;
 import it.gov.pagopa.mbd.service.model.csv.RecordV;
 import it.gov.pagopa.mbd.util.CsvUtils;
 import it.gov.pagopa.mbd.utils.TestUtils;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,6 +37,7 @@ import java.util.Map;
 
 import static it.gov.pagopa.mbd.utils.TestUtils.getBizEvent;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -93,7 +94,7 @@ class GenerateReportingServiceTest {
                 )
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andDo(
-                        (result) -> {
+                        result -> {
                             assertNotNull(result);
                             assertNotNull(result.getResponse());
                         });
@@ -121,14 +122,14 @@ class GenerateReportingServiceTest {
                 )
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
                 .andDo(
-                        (result) -> {
+                        result -> {
                             assertNotNull(result);
                             assertNotNull(result.getResponse());
                         });
     }
     
     @Test
-    void testWriteReportFileWithRetryFailure() throws Exception {
+    void testWriteReportFileWithRetryFailure() {
         // Mock CsvUtils to throw IOException on writeFile
         var csvUtilsMock = mockStatic(CsvUtils.class);
         csvUtilsMock.when(() -> CsvUtils.writeFile(any(), any())).thenThrow(new UncheckedIOException("Write failed!", new IOException()));
@@ -140,6 +141,8 @@ class GenerateReportingServiceTest {
         long progressivo = 1;
         String dataInvioFlusso = "20250610";
         var recordsV = Collections.<RecordV>emptyList();
+        long dateFrom = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long dateTo = dateFrom;
 
         // Set retry configuration
         retryConfig.setMaxAttempts(2);
@@ -153,8 +156,8 @@ class GenerateReportingServiceTest {
         		MBDRetryException.class,
         		() -> generateReportingService.writeReportFile(
         				pa, cacheInstitutionData, now, progressivo, dataInvioFlusso, recordsV,
-        				now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli(),
-        				now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        				dateFrom,
+        				dateTo
         				)
         		);
 
@@ -162,5 +165,49 @@ class GenerateReportingServiceTest {
         Assertions.assertTrue(ex.getMessage().contains("Write failed!"));
 
         csvUtilsMock.close();
+    }
+    
+    @Test
+    void testWriteReportFileSuccess() throws Exception {
+        // Mock static CsvUtils.writeFile
+        try (MockedStatic<CsvUtils> csvUtilsMock = Mockito.mockStatic(CsvUtils.class)) {
+            // Mock writeFile to do nothing (simulate successful write)
+            csvUtilsMock.when(() -> CsvUtils.writeFile(any(), any())).then(invocation -> null);
+
+            // Prepare test data
+            var pa = TestUtils.getCreditorInstitutionDto();
+            var cacheInstitutionData = TestUtils.getCacheInstitutionData();
+            var now = LocalDateTime.now();
+            long progressivo = 1;
+            String dataInvioFlusso = "20250610";
+            var recordsV = Collections.<RecordV>emptyList();
+            long dateFrom = now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            long dateTo = dateFrom;
+
+            // Create a temporary directory for the file system path
+            Path tempDir = Files.createTempDirectory("mbd-test-dir-success");
+            org.springframework.test.util.ReflectionTestUtils.setField(
+                generateReportingService, "fileSystemPath", tempDir.toString()
+            );
+
+            // Set retry configuration (useless in this case, but included for completeness)
+            retryConfig.setMaxAttempts(2);
+            retryConfig.setDelayMillis(10);
+            retryConfig.setMultiplier(1.0);
+
+            // Execute the method and verify no exception is thrown
+            assertDoesNotThrow(() -> 
+                generateReportingService.writeReportFile(pa, cacheInstitutionData, now, progressivo, dataInvioFlusso, recordsV, dateFrom, dateTo)
+            );
+
+            // Verify that CsvUtils.writeFile was called once
+            csvUtilsMock.verify(() -> CsvUtils.writeFile(any(), any()), times(1));
+
+            // Cleanup
+            Files.walk(tempDir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
+        }
     }
 }
