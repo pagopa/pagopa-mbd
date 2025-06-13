@@ -93,7 +93,7 @@ microservice-chart:
     COSMOS_PREFERRED_REGIONS: 'North Europe'
     CACHE_REFRESH_ENABLED: 'false'
     CACHE_REFRESH_CRON: '-'
-    HOME: '/mnt/firmatore/SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre/'
+    HOME: '/mnt/file-azure/firmatore/SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre/'
     RENDICONTAZIONI_GENERATE_ENABLED: 'true'
     RENDICONTAZIONI_GENERATE_CRON: '-'
     RENDICONTAZIONI_MAX_ATTEMPTS: '3'
