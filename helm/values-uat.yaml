@@ -23,15 +23,12 @@ microservice-chart:
   deployment:
     create: true
     replicas: 1
-    providedVolumeMount:
-      create: true
-      envSecrets:
-        azurestorageaccountname: "mbd-storage-name"
-        azurestorageaccountkey: "mbd-storage-key"
-      folders:
-        - name: firmatore
-          readOnly: false
-          mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"
+  providedVolumeMount:
+    create: true
+    folders:
+      - name: firmatore
+        readOnly: false
+        mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"
   serviceMonitor:
     create: true
     endpoints:
@@ -121,6 +118,8 @@ microservice-chart:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-apm-secret-token
     COSMOS_KEY: 'cosmos-biz-account-key'
     CLIENT_CACHE_SUBKEY: 'api-config-cache-subscription-key-string'
+    azurestorageaccountname: "azurestorageaccountname"
+    azurestorageaccountkey: "azurestorageaccountkey"    
   keyvault:
     name: "pagopa-u-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
