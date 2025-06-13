@@ -4,7 +4,10 @@ import static it.gov.pagopa.mbd.util.CsvUtils.writeFile;
 
 import it.gov.agenziaentrate._2014.marcadabollo.TipoMarcaDaBollo;
 import it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto;
+import it.gov.pagopa.mbd.config.RetryConfig;
+import it.gov.pagopa.mbd.config.RetryExecutor;
 import it.gov.pagopa.mbd.exception.MBDReportingException;
+import it.gov.pagopa.mbd.exception.MBDRetryException;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
 import it.gov.pagopa.mbd.repository.model.BizEventEntity;
 import it.gov.pagopa.mbd.repository.model.Transfer;
@@ -16,6 +19,8 @@ import it.gov.pagopa.mbd.service.model.csv.RecordZ;
 import it.gov.pagopa.mbd.util.CacheInstitutionData;
 import it.gov.pagopa.mbd.util.CommonUtility;
 import it.gov.pagopa.mbd.util.JaxbElementUtil;
+
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -55,6 +60,9 @@ public class GenerateReportingService {
   private final ConfigCacheService configCacheService;
   private final BizEventRepository bizEventRepository;
   private final JaxbElementUtil jaxbElementUtil;
+  
+  private final RetryExecutor retryExecutor;
+  private final RetryConfig retryConfig;
 
   @Value("${mbd.rendicontazioni.filePath}")
   private String fileSystemPath;
@@ -70,8 +78,15 @@ public class GenerateReportingService {
   // requiring the creation of an additional file for the same PA.
   private long progressivo = 1L;
 
-  public void execute(LocalDate date, String[] organizationsRequest) {
+  public void execute(LocalDate date, String[] organizationsRequest) throws MBDReportingException {
     log.info("Start MBD reporting generation {}", date);
+    
+    File dir = new File(fileSystemPath);
+    if (!dir.exists()) {
+      log.warn("Mount path {} does not exist. It may indicate the Azure File Share is not mounted.", fileSystemPath);
+      throw new MBDReportingException(
+		  "Mount path " + fileSystemPath + " does not exist. Please check the Azure File Share configuration.");
+    }
 
     // at each execution the progressive is initialized to one
     progressivo = 1L;
@@ -165,7 +180,7 @@ public class GenerateReportingService {
 
           // File creation for each chunk
           writeReportFile(
-              pa, cacheInstitutionData, now, localProgressivo, dataInvioFlusso, recordsVChunk);
+              pa, cacheInstitutionData, now, localProgressivo, dataInvioFlusso, recordsVChunk, dateFrom, dateTo);
         }
 
         // Update global progressivo
@@ -274,44 +289,57 @@ public class GenerateReportingService {
     return recordVList;
   }
 
-  private void writeReportFile(
-      CreditorInstitutionDto pa,
-      CacheInstitutionData cacheInstitutionData,
-      LocalDateTime now,
-      long progressivo,
-      String dataInvioFlusso,
-      List<RecordV> recordsV) {
+  void writeReportFile(
+		  CreditorInstitutionDto pa,
+		  CacheInstitutionData cacheInstitutionData,
+		  LocalDateTime now,
+		  long progressivo,
+		  String dataInvioFlusso,
+		  List<RecordV> recordsV,
+		  long dateFrom,
+		  long dateTo) {
 
-    RecordA recordA = createRecordA(cacheInstitutionData, pa, dataInvioFlusso, progressivo);
-    RecordM recordM = createRecordM(cacheInstitutionData, pa, dataInvioFlusso, progressivo);
-    RecordZ recordZ =
-        createRecordZ(cacheInstitutionData, pa, dataInvioFlusso, progressivo, recordsV.size());
+	  RecordA recordA = createRecordA(cacheInstitutionData, pa, dataInvioFlusso, progressivo);
+	  RecordM recordM = createRecordM(cacheInstitutionData, pa, dataInvioFlusso, progressivo);
+	  RecordZ recordZ =
+			  createRecordZ(cacheInstitutionData, pa, dataInvioFlusso, progressivo, recordsV.size());
 
-    String dayOfYear = String.valueOf(now.getDayOfYear());
-    String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
-    // Currently, no checks are in place to prevent file overwriting if multiple files are generated within the same second. 
-    // However, the current value of 'maxVRecordPerFile' and 'maxStampsForVRecord' makes this scenario extremely unlikely.
-    String fileName =
-        cacheInstitutionData.getCodiceTrasmissivo()
-            + "AT"
-            + CODICE_FLUSSO_NORMALE
-            + ".S"
-            + pa.getCreditorInstitutionCode()
-            + ".D"
-            + now.getYear()
-            + paddedDayOfYear
-            + "T"
-            + LocalDateTime.now().format(formatterHours);
+	  String dayOfYear = String.valueOf(now.getDayOfYear());
+	  String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
+	  // Currently, no checks are in place to prevent file overwriting if multiple files are generated within the same second. 
+	  // However, the current value of 'maxVRecordPerFile' and 'maxStampsForVRecord' makes this scenario extremely unlikely.
+	  String fileName =
+			  cacheInstitutionData.getCodiceTrasmissivo()
+			  + "AT"
+			  + CODICE_FLUSSO_NORMALE
+			  + ".S"
+			  + pa.getCreditorInstitutionCode()
+			  + ".D"
+			  + now.getYear()
+			  + paddedDayOfYear
+			  + "T"
+			  + LocalDateTime.now().format(formatterHours);
 
-    String filePath = Paths.get(fileSystemPath, fileName).toString();
+	  String filePath = Paths.get(fileSystemPath, fileName).toString();
 
-    StringBuilder fileContent = new StringBuilder();
-    fileContent.append(recordA.toLine()).append("\n").append(recordM.toLine()).append("\n");
-    recordsV.forEach(recV -> fileContent.append(recV.toLine()).append("\n"));
-    fileContent.append(recordZ.toLine());
+	  StringBuilder fileContent = new StringBuilder();
+	  fileContent.append(recordA.toLine()).append("\n").append(recordM.toLine()).append("\n");
+	  recordsV.forEach(recV -> fileContent.append(recV.toLine()).append("\n"));
+	  fileContent.append(recordZ.toLine());
 
-    writeFile(filePath, fileContent.toString().getBytes(StandardCharsets.UTF_8));
-    log.info("File written successfully: {}", filePath);
+	  retryExecutor.executeWithRetry(context -> {
+		  writeFile(filePath, fileContent.toString().getBytes(StandardCharsets.UTF_8));
+		  log.info("File written successfully (attempt {}): {}", context.getRetryCount() + 1, filePath);
+		  return null;
+	  },
+	  // Callback
+	  exception -> {
+		  String errorMessage = String.format(
+				"File write failed after retrying %s times for filePath [%s], dateFrom [%s], dateTo [%s]. Error: %s",
+				retryConfig.getMaxAttempts(), filePath, dateFrom, dateTo, exception.getMessage());
+		  log.error(errorMessage, exception);
+		  throw new MBDRetryException(errorMessage);
+    });
   }
 
   private RecordA createRecordA(
@@ -374,7 +402,7 @@ public class GenerateReportingService {
   }
 
   @Async
-  public void recovery(LocalDate from, LocalDate to, String[] organizations) {
+  public void recovery(LocalDate from, LocalDate to, String[] organizations) throws MBDReportingException {
     log.info("MBD reporting recovery from {} to {}", from, to);
     LocalDate date = from;
     do {

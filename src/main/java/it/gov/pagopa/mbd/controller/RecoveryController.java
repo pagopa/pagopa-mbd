@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.gov.pagopa.mbd.exception.MBDReportingException;
 import it.gov.pagopa.mbd.service.GenerateReportingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public class RecoveryController {
     public ResponseEntity<Void> recover(
                            @RequestParam("from") LocalDate from,
                            @RequestParam("to") LocalDate to,
-                           @RequestParam(value="organizations", required = false) String[] organizations) {
+                           @RequestParam(value="organizations", required = false) String[] organizations) throws MBDReportingException {
         generateReportingService.recovery(from, to, organizations);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
