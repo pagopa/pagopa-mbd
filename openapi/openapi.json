@@ -4,7 +4,7 @@
     "description": "A microservice that permits to handle Digital Stamps in pagoPA platform",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "pagopa-mbd",
-    "version": "0.1.3-2-PAGOPA-3017-save-retry-csv"
+    "version": "0.1.3-3-PAGOPA-3017-save-retry-csv"
   },
   "servers": [
     {
