@@ -7,10 +7,6 @@ on:
         required: true
         description: The name of the environment where to deploy
         type: string
-      component:
-        required: true
-        description: The component to deploy
-        type: string
       branch:
         required: false
         default: ${{ github.ref_name }}
