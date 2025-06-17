@@ -52,7 +52,7 @@ microservice-chart:
   serviceAccount:
     name: "nodo-workload-identity"
   azure:
-    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
+    workloadIdentityClientId: "919f4844-47c9-4c54-b2ec-185615bf1246"
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
@@ -83,6 +83,8 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
+    APP_NAME: "pagopambd"
+    APP_ENVIRONMENT: "dev"
     WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
     ENV: 'dev'
     APP_LOGGING_LEVEL: 'DEBUG'
@@ -133,6 +135,48 @@ microservice-chart:
               - key: node_type
                 operator: In
                 values:
-                  - user
+                  - 'user'
   canaryDelivery:
     create: false
+runflussi-cron:
+  namespace: "nodo"
+  schedule: "4 * * * *"
+  timeZone: "Europe/Rome"
+  successfulJobsHistoryLimit: "1"
+  image:
+    repository: openjdk
+    tag: 8-jdk
+    pullPolicy: Always
+  command: ["/bin/bash", "-c"]
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "300m"
+  envSecrets:
+    azurestorageaccountname: "azurestorageaccountname"
+    azurestorageaccountkey: "azurestorageaccountkey"
+  keyvault:
+    name: "pagopa-d-nodo-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+  serviceAccount:
+    name: "nodo-workload-identity"
+  azure:
+    workloadIdentityClientId: "919f4844-47c9-4c54-b2ec-185615bf1246"
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "gps"
+      effect: NoSchedule
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node_type
+                operator: In
+                values:
+                  - user
+
