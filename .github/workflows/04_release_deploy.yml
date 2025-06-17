@@ -18,6 +18,14 @@ on:
           - dev
           - uat
           - prod
+      component:
+        required: true
+        type: choice
+        description: Select fdr or cron (disabled)
+        default: ". ( pagopa-mbd serivce generate report)"
+        options:
+          - .          
+          - crons
       beta:
         required: false
         type: boolean
@@ -138,6 +146,7 @@ jobs:
     uses: ./.github/workflows/04_deploy_with_github_runner.yml
     with:
       environment: ${{ needs.setup.outputs.environment }}
+      component: ${{ inputs.component }}
     secrets: inherit
 
   notify:

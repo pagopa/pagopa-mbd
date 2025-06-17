@@ -1,0 +1,63 @@
+runflussi:
+  namespace: "nodo"
+  schedule: "4 * * * *"
+  concurrencyPolicy: "Allow"
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 1
+  parallelism: 1
+  terminationGracePeriodSeconds: 140
+  command: ["/bin/bash", "-c"]
+  args: ["scripts/runflussi.sh"]
+  image:  
+    repository: openjdk
+    tag: 8-jdk
+  tmpVolumeMount:
+    create: true
+  providedVolumeMount:
+    create: true
+    folders:
+      - name: firmatore
+        readOnly: false
+        mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "300m"
+  # Workload identity not yet implemented in cron-chart
+  # serviceAccount:
+  #   name: "fdr-workload-identity"
+  # azure:
+  #   workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
+  envConfig:
+    APP_NAME: "mbd-runflussi"
+  envSecret:
+    azurestorageaccountname: "azurestorageaccountname"
+    azurestorageaccountkey: "azurestorageaccountkey"
+  keyvault:
+    name: "pagopa-d-nodo-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+  envFieldRef:
+    MANAGEMENT_HTTP_HOST: "status.podIP"
+    SERVICE_HTTP_HOST: "status.podIP"
+    MICROMETER_HOSTNAME: "metadata.name"
+    NAMESPACE: "metadata.namespace"
+    CINNAMON_HOST: "metadata.name"
+    APP_VERSION: "metadata.labels['app.kubernetes.io/version']"
+    APP_NAME: "metadata.labels['app.kubernetes.io/name']"
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "nodo"
+      effect: NoSchedule
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: nodo
+                operator: In
+                values:
+                  - "true"

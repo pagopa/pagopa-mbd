@@ -7,6 +7,10 @@ on:
         required: true
         description: The name of the environment where to deploy
         type: string
+      component:
+        required: true
+        description: The component to deploy
+        type: string
       branch:
         required: false
         default: ${{ github.ref_name }}
@@ -26,6 +30,28 @@ jobs:
     name: Deploy on AKS
     environment: ${{ inputs.environment }}
     steps:
+      - name: Set Helm Component
+        id: get_wdir
+        run: |
+          case "${{ inputs.component }}" in
+            ".")
+              echo "component=." >> $GITHUB_ENV
+              echo "APP_NAME=pagopambd" >> $GITHUB_ENV
+              echo "microservice-chart-name=microservice-chart" >> $GITHUB_ENV
+              echo "Component determined: $component"
+              ;;
+            "crons")
+              echo "component=helm-crons" >> $GITHUB_ENV
+              echo "APP_NAME=pagopambd" >> $GITHUB_ENV
+              echo "microservice-chart-name=cron-chart" >> $GITHUB_ENV
+              echo "Component determined: $component"
+              ;;
+            *)
+              echo "Unknown option"
+              ;;
+          esac
+
+
       - name: Deploy
         uses: pagopa/github-actions-template/aks-deploy@main
         with:
@@ -38,7 +64,9 @@ jobs:
           cluster_name: ${{ vars.CLUSTER_NAME }}
           resource_group: ${{ vars.CLUSTER_RESOURCE_GROUP }}
           app_name: ${{ env.APP_NAME }}
-          helm_upgrade_options: '--debug --set microservice-chart.azure.workloadIdentityClientId=${{vars.WORKLOAD_IDENTITY_ID}}'
+          helm_upgrade_options: '--debug --set ${{vars.microservice-chart-name}}.azure.workloadIdentityClientId=${{vars.WORKLOAD_IDENTITY_ID}}'
+          working_directory: ${{ env.component }}
+          timeout: '10m0s'
 
   update_openapi:
     needs: [ deploy ]
