@@ -5,7 +5,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.core.instrument.util.IOUtils;
+import it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionAddressDto;
+import it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto;
 import it.gov.pagopa.mbd.repository.model.BizEventEntity;
+import it.gov.pagopa.mbd.util.CacheInstitutionData;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -85,5 +89,37 @@ public class TestUtils {
         };
         return new ObjectMapper().readValue(TestUtils.loadFileContent("/mock/configurations.json"), typeRef);
     }
+
+	public static CreditorInstitutionDto getCreditorInstitutionDto() {
+		CreditorInstitutionDto creditorInstitutionDto = new CreditorInstitutionDto();
+		creditorInstitutionDto.setBusinessName("businessName");
+		creditorInstitutionDto.setCreditorInstitutionCode("0123456789");
+		creditorInstitutionDto.setDescription("description");
+		creditorInstitutionDto.setEnabled(true);
+		creditorInstitutionDto.setPspPayment(true);
+		creditorInstitutionDto.setReportingFtp(true);
+		creditorInstitutionDto.setReportingZip(true);
+		CreditorInstitutionAddressDto creditorInstitutionAddressDto = new CreditorInstitutionAddressDto();
+		creditorInstitutionAddressDto.setCity("city");
+		creditorInstitutionAddressDto.setZipCode("postalCode");
+		creditorInstitutionAddressDto.setCountryCode("countryCode");
+		creditorInstitutionAddressDto.setLocation("location");	
+		creditorInstitutionAddressDto.setTaxDomicile("taxDomicile");
+		creditorInstitutionDto.setAddress(creditorInstitutionAddressDto);
+		
+		return creditorInstitutionDto;
+	}
+
+	public static CacheInstitutionData getCacheInstitutionData() {
+		return CacheInstitutionData.builder()
+				.mittenteCodiceFiscale("0123456789")
+				.intermediarioDenominazione("Intermediario Denominazione")
+				.intermediarioComune("Intermediario Comune")
+				.intermediarioSiglaProvincia("IP")
+				.intermediarioCap("12345")
+				.intermediarioIndirizzo("Intermediario Indirizzo")
+				.codiceTrasmissivo("codiceTrasmissivo")
+				.build();
+	}
 
 }

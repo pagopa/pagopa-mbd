@@ -1,5 +1,6 @@
 package it.gov.pagopa.mbd.config;
 
+import it.gov.pagopa.mbd.exception.MBDReportingException;
 import it.gov.pagopa.mbd.service.ConfigCacheService;
 import it.gov.pagopa.mbd.service.GenerateReportingService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,8 @@ public class ScheduledJobsConfig {
     }
 
 
-    @Scheduled(cron = "${mbd.rendicontazioni.genera.cron:-}")
-    public void generateReporting() {
+    @Scheduled(cron = "${mbd.rendicontazioni.generate.cron:-}")
+    public void generateReporting() throws MBDReportingException {
         LocalDate date = LocalDate.now();
         log.info("[Scheduled] Starting genera rendicontazioni mbd for {}", date);
         generateReportingService.execute(date, new String[0]);
