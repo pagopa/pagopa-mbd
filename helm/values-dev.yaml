@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-mbd
-    tag: "0.1.3-2-PAGOPA-3017-save-retry-csv"
+    tag: "0.2.0"
     pullPolicy: Always
   livenessProbe:
     handlerType: tcpSocket
@@ -119,7 +119,7 @@ microservice-chart:
     COSMOS_KEY: 'cosmos-biz-account-key'
     CLIENT_CACHE_SUBKEY: 'api-config-cache-subscription-key-string'
     azurestorageaccountname: "azurestorageaccountname"
-    azurestorageaccountkey: "azurestorageaccountkey"    
+    azurestorageaccountkey: "azurestorageaccountkey"
   keyvault:
     name: "pagopa-d-nodo-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
