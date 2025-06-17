@@ -26,28 +26,6 @@ jobs:
     name: Deploy on AKS
     environment: ${{ inputs.environment }}
     steps:
-      - name: Set Helm Component
-        id: get_wdir
-        run: |
-          case "${{ inputs.component }}" in
-            ".")
-              echo "component=." >> $GITHUB_ENV
-              echo "APP_NAME=pagopambd" >> $GITHUB_ENV
-              echo "microservice-chart-name=microservice-chart" >> $GITHUB_ENV
-              echo "Component determined: $component"
-              ;;
-            "crons")
-              echo "component=helm-crons" >> $GITHUB_ENV
-              echo "APP_NAME=pagopambd" >> $GITHUB_ENV
-              echo "microservice-chart-name=cron-chart" >> $GITHUB_ENV
-              echo "Component determined: $component"
-              ;;
-            *)
-              echo "Unknown option"
-              ;;
-          esac
-
-
       - name: Deploy
         uses: pagopa/github-actions-template/aks-deploy@main
         with:
