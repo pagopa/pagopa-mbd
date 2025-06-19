@@ -52,7 +52,7 @@ microservice-chart:
   serviceAccount:
     name: "nodo-workload-identity"
   azure:
-    workloadIdentityClientId: <workload-identity-client-id-set-automatically-by-gha>
+    workloadIdentityClientId: "6e1450e0-ce53-43f9-8410-0d073795946b"
   podAnnotations: {}
   podSecurityContext:
     seccompProfile:
@@ -83,6 +83,8 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
+    APP_NAME: "pagopambd"
+    APP_ENVIRONMENT: "prod"
     WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
     ENV: 'prod'
     APP_LOGGING_LEVEL: 'INFO'
@@ -133,6 +135,184 @@ microservice-chart:
               - key: node_type
                 operator: In
                 values:
-                  - user
+                  - 'user'
   canaryDelivery:
     create: false
+# https://github.com/pagopa/pagopa-firmatore/pull/9    
+runflussi-cron: # >>> CRON #1 runflussi.sh
+  namespace: "nodo"
+  schedule: "0 2 * * *"
+  timeZone: "Europe/Rome"
+  successfulJobsHistoryLimit: "1"
+  image:
+    repository: openjdk
+    tag: 8-jdk
+    pullPolicy: Always
+  command: ["/bin/bash", "-c", "/mnt/file-azure/firmatore/scripts/runflussi.sh"]
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "300m"
+  providedVolumeMount:
+    create: true
+    folders:
+      - name: firmatore
+        readOnly: false
+        mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false # ln
+    capabilities:
+      drop:
+        - all
+  envConfig:
+    BASE_MNT: "/mnt/file-azure/firmatore/"
+    FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
+  envSecrets:
+    azurestorageaccountname: "azurestorageaccountname"
+    azurestorageaccountkey: "azurestorageaccountkey"
+  keyvault:
+    name: "pagopa-p-nodo-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+  serviceAccount:
+    name: "nodo-workload-identity"
+  azure:
+    workloadIdentityClientId: "6e1450e0-ce53-43f9-8410-0d073795946b"
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "gps"
+      effect: NoSchedule
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node_type
+                operator: In
+                values:
+                  - user
+renametransfer-cron: # >>> CRON #2 renametransfer.sh
+  namespace: "nodo"
+  schedule: "0 3 * * *"
+  timeZone: "Europe/Rome"
+  successfulJobsHistoryLimit: "1"
+  image:
+    repository: openjdk
+    tag: 8-jdk
+    pullPolicy: Always
+  command: ["/bin/bash", "-c", "/mnt/file-azure/firmatore/scripts/renametransfer.sh"] 
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "300m"
+  providedVolumeMount:
+    create: true
+    folders:
+      - name: firmatore
+        readOnly: false
+        mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false # ln
+    capabilities:
+      drop:
+        - all
+  envConfig:
+    BASE_MNT: "/mnt/file-azure/firmatore/"
+    FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
+    SFTP_USERNAME: "pagopa_pgsg"
+    SFTP_HOST: "sftp1.public.pdnd.pagopa.it"
+    SFTP_PORT: "22"
+  envSecrets:
+    azurestorageaccountname: "azurestorageaccountname"
+    azurestorageaccountkey: "azurestorageaccountkey"
+    SFTP_PEM_KEY: "rmbd-sftp-pem-key"
+  keyvault:
+    name: "pagopa-p-nodo-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+  serviceAccount:
+    name: "nodo-workload-identity"
+  azure:
+    workloadIdentityClientId: "6e1450e0-ce53-43f9-8410-0d073795946b"
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "gps"
+      effect: NoSchedule
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node_type
+                operator: In
+                values:
+                  - user
+getelabricevute-cron: # >>> CRON #3 get-elab-ricevute.sh
+  namespace: "nodo"
+  schedule: "30 09 * * *"
+  timeZone: "Europe/Rome"
+  successfulJobsHistoryLimit: "1"
+  image:
+    repository: openjdk
+    tag: 8-jdk
+    pullPolicy: Always
+  command: ["/bin/bash", "-c", "/mnt/file-azure/firmatore/scripts/get-elab-ricevute.sh"]
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+      cpu: "300m"
+  providedVolumeMount:
+    create: true
+    folders:
+      - name: firmatore
+        readOnly: false
+        mountOptions: "dir_mode=0777,file_mode=0777,cache=strict,actimeo=30"
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: false # ln
+    capabilities:
+      drop:
+        - all
+  envConfig:
+    BASE_MNT: "/mnt/file-azure/firmatore/"
+    FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
+    SFTP_USERNAME: "pagopa_pgsg"
+    SFTP_HOST: "sftp1.public.pdnd.pagopa.it"
+    SFTP_PORT: "22"
+  envSecrets:
+    azurestorageaccountname: "azurestorageaccountname"
+    azurestorageaccountkey: "azurestorageaccountkey"
+    SFTP_PEM_KEY: "rmbd-sftp-pem-key"
+  keyvault:
+    name: "pagopa-p-nodo-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+  serviceAccount:
+    name: "nodo-workload-identity"
+  azure:
+    workloadIdentityClientId: "6e1450e0-ce53-43f9-8410-0d073795946b"
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "gps"
+      effect: NoSchedule
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node_type
+                operator: In
+                values:
+                  - user
+

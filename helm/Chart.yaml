@@ -12,3 +12,11 @@ dependencies:
     version: 3.0.0
     repository: "https://pagopa.github.io/aks-cron-chart-blueprint"
     alias: runflussi-cron
+  - name: cron-chart
+    version: 3.0.0
+    repository: "https://pagopa.github.io/aks-cron-chart-blueprint"
+    alias: renametransfer-cron
+  - name: cron-chart
+    version: 3.0.0
+    repository: "https://pagopa.github.io/aks-cron-chart-blueprint"
+    alias: getelabricevute-cron
