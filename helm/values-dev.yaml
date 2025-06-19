@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-mbd
-    tag: "0.2.0-1-PAGOPA-3019-add-helm-cron-blueprint"
+    tag: "0.2.1"
     pullPolicy: Always
   livenessProbe:
     handlerType: tcpSocket
@@ -204,7 +204,7 @@ renametransfer-cron: # >>> CRON #2 renametransfer.sh
     repository: openjdk
     tag: 8-jdk
     pullPolicy: Always
-  command: ["/bin/bash", "-c", "/mnt/file-azure/firmatore/scripts/renametransfer.sh"] 
+  command: ["/bin/bash", "-c", "/mnt/file-azure/firmatore/scripts/renametransfer.sh"]
   resources:
     requests:
       memory: "256Mi"
@@ -315,4 +315,3 @@ getelabricevute-cron: # >>> CRON #3 get-elab-ricevute.sh
                 operator: In
                 values:
                   - user
-
