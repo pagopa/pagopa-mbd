@@ -2,9 +2,21 @@ apiVersion: v2
 name: pagopa-mbd
 description: Microservice that permits to handle Digital Stamps in pagoPA platform
 type: application
-version: 0.22.0
-appVersion: 0.1.3-3-PAGOPA-3017-save-retry-csv
+version: 0.24.0
+appVersion: 0.2.1
 dependencies:
   - name: microservice-chart
     version: 7.5.0
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
+  - name: cron-chart
+    version: 3.0.0
+    repository: "https://pagopa.github.io/aks-cron-chart-blueprint"
+    alias: runflussi-cron
+  - name: cron-chart
+    version: 3.0.0
+    repository: "https://pagopa.github.io/aks-cron-chart-blueprint"
+    alias: renametransfer-cron
+  - name: cron-chart
+    version: 3.0.0
+    repository: "https://pagopa.github.io/aks-cron-chart-blueprint"
+    alias: getelabricevute-cron
