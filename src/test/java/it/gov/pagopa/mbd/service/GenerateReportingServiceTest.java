@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static it.gov.pagopa.mbd.utils.TestUtils.getBizEvent;
 import static org.junit.Assert.assertNotNull;
@@ -154,7 +155,7 @@ class GenerateReportingServiceTest {
         // Execute the method and expect MBDRetryException
         Exception ex = Assertions.assertThrows(
         		MBDRetryException.class,
-        		() -> generateReportingService.writeReportFile(
+        		() -> generateReportingService.writeReportFile(UUID.randomUUID(),
         				pa, cacheInstitutionData, now, progressivo, dataInvioFlusso, recordsV,
         				dateFrom,
         				dateTo
@@ -197,7 +198,7 @@ class GenerateReportingServiceTest {
 
             // Execute the method and verify no exception is thrown
             assertDoesNotThrow(() -> 
-                generateReportingService.writeReportFile(pa, cacheInstitutionData, now, progressivo, dataInvioFlusso, recordsV, dateFrom, dateTo)
+                generateReportingService.writeReportFile(UUID.randomUUID(), pa, cacheInstitutionData, now, progressivo, dataInvioFlusso, recordsV, dateFrom, dateTo)
             );
 
             // Verify that CsvUtils.writeFile was called once

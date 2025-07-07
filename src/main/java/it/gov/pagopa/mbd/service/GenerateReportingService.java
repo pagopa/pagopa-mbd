@@ -36,6 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +80,8 @@ public class GenerateReportingService {
   private long progressivo = 1L;
 
   public void execute(LocalDate date, String[] organizationsRequest) throws MBDReportingException {
-    log.info("Start MBD reporting generation {}", date);
+    UUID executionId = UUID.randomUUID();
+    log.info("[{}] Start MBD reporting generation for date {}", executionId, date);
     
     File dir = new File(fileSystemPath);
     if (!dir.exists()) {
@@ -124,15 +126,16 @@ public class GenerateReportingService {
               .toList();
 
       for (CreditorInstitutionDto pa : ecs) {
-        processData(dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
+        processData(executionId, dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
       }
 
     } catch (Exception e) {
-      log.error("General error while generating MBD reports: {}", e.getMessage(), e);
+        log.error("[{}] General error while generating MBD reports: {}", executionId, e.getMessage(), e);
     }
   }
 
   private void processData(
+      UUID executionId,
       long dateFrom,
       long dateTo,
       DateTimeFormatter dateFormat,
@@ -180,27 +183,19 @@ public class GenerateReportingService {
 
           // File creation for each chunk
           writeReportFile(
-              pa, cacheInstitutionData, now, localProgressivo, dataInvioFlusso, recordsVChunk, dateFrom, dateTo);
+                  executionId, pa, cacheInstitutionData, now, localProgressivo, dataInvioFlusso, recordsVChunk, dateFrom, dateTo);
         }
 
         // Update global progressivo
         this.progressivo = vRecordChunkProgressivo.get();
 
       } else {
-        log.info(
-            "No events found for PA {} in the date range {} to {} ",
-            pa.getCreditorInstitutionCode(),
-            dateFrom,
-            dateTo);
+          log.info("[{}] No events found for PA {} in range {} to {}", executionId, pa.getCreditorInstitutionCode(), dateFrom, dateTo);
       }
 
     } catch (Exception e) {
-      log.error(
-          "Error generating file for PA {}: {}",
-          pa.getCreditorInstitutionCode(),
-          e.getMessage(),
-          e);
-      throw new MBDReportingException(
+        log.error("[{}] Error generating file for PA {}: {}", executionId, pa.getCreditorInstitutionCode(), e.getMessage(), e);
+        throw new MBDReportingException(
           "Error generating file for PA " + pa.getCreditorInstitutionCode(), e);
     }
   }
@@ -290,6 +285,7 @@ public class GenerateReportingService {
   }
 
   void writeReportFile(
+          UUID executionId,
 		  CreditorInstitutionDto pa,
 		  CacheInstitutionData cacheInstitutionData,
 		  LocalDateTime now,
@@ -303,6 +299,10 @@ public class GenerateReportingService {
 	  RecordM recordM = createRecordM(cacheInstitutionData, pa, dataInvioFlusso, progressivo);
 	  RecordZ recordZ =
 			  createRecordZ(cacheInstitutionData, pa, dataInvioFlusso, progressivo, recordsV.size());
+	  
+	  int totalMBD = recordsV.stream()
+	          .mapToInt(recV -> recV.getMarche() != null ? recV.getMarche().size() : 0)
+	          .sum();
 
 	  String dayOfYear = String.valueOf(now.getDayOfYear());
 	  String paddedDayOfYear = "0" + (DAY_OF_YEAR_LEN - dayOfYear.length()) + dayOfYear;
@@ -329,14 +329,15 @@ public class GenerateReportingService {
 
 	  retryExecutor.executeWithRetry(context -> {
 		  writeFile(filePath, fileContent.toString().getBytes(StandardCharsets.UTF_8));
-		  log.info("File written successfully (attempt {}): {}", context.getRetryCount() + 1, filePath);
+		  log.info("[{}] File written successfully for PA [{}] (attempt {}): {}. Contains {} MBD.",
+		          executionId, pa.getCreditorInstitutionCode(), context.getRetryCount() + 1, filePath, totalMBD);
 		  return null;
 	  },
 	  // Callback
 	  exception -> {
 		  String errorMessage = String.format(
-				"File write failed after retrying %s times for filePath [%s], dateFrom [%s], dateTo [%s]. Error: %s",
-				retryConfig.getMaxAttempts(), filePath, dateFrom, dateTo, exception.getMessage());
+				"[%s] File for pa %s write failed after retrying %s times for filePath [%s], dateFrom [%s], dateTo [%s]. Error: %s", 
+				executionId, pa.getCreditorInstitutionCode(), retryConfig.getMaxAttempts(), filePath, dateFrom, dateTo, exception.getMessage());
 		  log.error(errorMessage, exception);
 		  throw new MBDRetryException(errorMessage);
     });
