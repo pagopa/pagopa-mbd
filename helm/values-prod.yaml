@@ -65,10 +65,10 @@ microservice-chart:
         - all
   resources:
     requests:
-      memory: "512Mi"
+      memory: "2Gi"
       cpu: "0.30"
     limits:
-      memory: "1512Mi"
+      memory: "3Gi"
       cpu: "0.80"
   autoscaling:
     enable: true
@@ -83,6 +83,7 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
+    JAVA_TOOL_OPTIONS: '-Xmx2560m -Xms1024m -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30' # https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/1494942089/Ottimizzazione+JAVA+OPTIONS+per+Container
     APP_NAME: "pagopambd"
     APP_ENVIRONMENT: "prod"
     WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
