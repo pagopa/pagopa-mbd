@@ -172,13 +172,14 @@ public class GenerateReportingService {
         String dataInvioFlusso = now.format(dateFormat);
 
         List<String> mbdAttachments =
-            bizEvents.stream()
-                .flatMap(
-                    b ->
-                        b.getTransferList().stream()
-                            .map(Transfer::getMBDAttachment)
-                            .filter(StringUtils::isNotBlank))
-                .toList();
+                bizEvents.stream()
+                    .flatMap(b -> b.getTransferList().stream()
+                         // Ensures only MBDs for the current PA are counted (prevents over-counting due to mixed transfers in BizEventEntity)    
+                        .filter(t -> pa.getCreditorInstitutionCode().equals(t.getFiscalCodePA()))
+                        .map(Transfer::getMBDAttachment)
+                        .filter(StringUtils::isNotBlank)
+                    )
+                    .toList();
 
         List<RecordV> allRecordsV =
             createRecordVList(
