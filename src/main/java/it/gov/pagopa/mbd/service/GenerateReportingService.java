@@ -48,6 +48,8 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 @CacheConfig(cacheNames = "cache")
 @Slf4j
@@ -122,11 +124,9 @@ public class GenerateReportingService {
       
       // summary logs
       log.info("[{}] Total PAs retrieved from cache: {}", executionId, totalPaFromCache);
-      log.info("[{}] PA with at least one associated mbd: {}", executionId, totalPaWithMbd);
-      for (PaMbdCount paCount : paWithMbdList) {
-          log.info("[{}] PA: {}, mbdCount: {}", executionId, paCount.getIdPA(), paCount.getMbdCount());
-      }
-      
+      log.info("[{}] Total PAs with at least one associated mbd: {}", executionId, totalPaWithMbd);
+      log.info("[{}] List of PAs with associated mbd: {}", executionId, new ObjectMapper().writeValueAsString(paWithMbdList));
+   
       // 3. Create the list of PAs actually to be processed
       List<String> paIdWithMbd = paWithMbdList.stream()
               .map(PaMbdCount::getIdPA)
