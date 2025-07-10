@@ -116,6 +116,15 @@ class GenerateReportingServiceTest {
 
         when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString())).thenReturn(getBizEvent());
         when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().idPA("0123456789").mbdCount(1).build()));
+        
+        Path tempDir = Files.createTempDirectory("mbd-test-dir");
+        String path = tempDir.toAbsolutePath().toString();
+        
+        org.springframework.test.util.ReflectionTestUtils.setField(
+                applicationContext.getBean(GenerateReportingService.class),
+                "fileSystemPath",
+                path
+        );
 
         mvc.perform(MockMvcRequestBuilders.patch("/recover")
                         .accept(MediaType.APPLICATION_JSON)
