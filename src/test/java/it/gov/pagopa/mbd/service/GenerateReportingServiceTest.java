@@ -115,6 +115,7 @@ class GenerateReportingServiceTest {
         org.springframework.test.util.ReflectionTestUtils.setField(configCacheService, "configData", TestUtils.configData());
 
         when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString())).thenReturn(getBizEvent());
+        when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().idPA("0123456789").mbdCount(1).build()));
 
         mvc.perform(MockMvcRequestBuilders.patch("/recover")
                         .accept(MediaType.APPLICATION_JSON)
