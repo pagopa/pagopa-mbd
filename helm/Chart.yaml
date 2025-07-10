@@ -2,8 +2,8 @@ apiVersion: v2
 name: pagopa-mbd
 description: Microservice that permits to handle Digital Stamps in pagoPA platform
 type: application
-version: 0.28.0
-appVersion: 0.2.3-2-PAGOPA-3187-only-orgs-with-MBD
+version: 0.29.0
+appVersion: 0.2.3-3-PAGOPA-3187-only-orgs-with-MBD
 dependencies:
   - name: microservice-chart
     version: 7.5.0

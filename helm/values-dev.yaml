@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-mbd
-    tag: "0.2.3-2-PAGOPA-3187-only-orgs-with-MBD"
+    tag: "0.2.3-3-PAGOPA-3187-only-orgs-with-MBD"
     pullPolicy: Always
   livenessProbe:
     handlerType: tcpSocket
