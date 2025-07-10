@@ -12,6 +12,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class PaMbdCount {
-    private String idPA;
+    private String fiscalCodePA;
     private long mbdCount;
 }

@@ -124,12 +124,12 @@ public class GenerateReportingService {
       
       // summary logs
       log.info("[{}] Total PAs retrieved from cache: {}", executionId, totalPaFromCache);
-      log.info("[{}] Total PAs with at least one associated mbd: {}", executionId, totalPaWithMbd);
+      log.info("[{}] Total PAs with at least one associated mbd: {} (range from {} to {})", executionId, totalPaWithMbd, dateFrom, dateTo);
       log.info("[{}] List of PAs with associated mbd: {}", executionId, new ObjectMapper().writeValueAsString(paWithMbdList));
    
       // 3. Create the list of PAs actually to be processed
       List<String> paIdWithMbd = paWithMbdList.stream()
-              .map(PaMbdCount::getIdPA)
+              .map(PaMbdCount::getFiscalCodePA)
               .toList();
 
       // 4. Apply organizationRequest filter if it exists and create sorted list only for PAs with MBD

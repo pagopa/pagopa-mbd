@@ -55,9 +55,6 @@ class GenerateReportingServiceTest {
     @Autowired private ConfigCacheService configCacheService;
     
     @Autowired private ApplicationContext applicationContext;
-    
-    @Autowired
-    private it.gov.pagopa.mbd.config.RetryExecutor retryExecutor;
 
     @Autowired
     private it.gov.pagopa.mbd.config.RetryConfig retryConfig;
@@ -77,7 +74,7 @@ class GenerateReportingServiceTest {
     	org.springframework.test.util.ReflectionTestUtils.setField(configCacheService, "configData", TestUtils.configData());
 
         when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString())).thenReturn(getBizEvent());
-        when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().idPA("66666666666").mbdCount(1).build()));
+        when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().fiscalCodePA("66666666666").mbdCount(1).build()));
         
         Path tempDir = Files.createTempDirectory("mbd-test-dir");
         String path = tempDir.toAbsolutePath().toString();
@@ -115,7 +112,7 @@ class GenerateReportingServiceTest {
         org.springframework.test.util.ReflectionTestUtils.setField(configCacheService, "configData", TestUtils.configData());
 
         when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString())).thenReturn(getBizEvent());
-        when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().idPA("0123456789").mbdCount(1).build()));
+        when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().fiscalCodePA("0123456789").mbdCount(1).build()));
         
         Path tempDir = Files.createTempDirectory("mbd-test-dir");
         String path = tempDir.toAbsolutePath().toString();

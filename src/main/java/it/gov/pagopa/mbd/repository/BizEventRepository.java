@@ -17,7 +17,7 @@ public interface BizEventRepository extends CosmosRepository<BizEventEntity, Str
     List<BizEventEntity> getBizEventsByDateFromAndDateToAndEC(@Param("dateFrom") Long dateFrom,
                                                               @Param("dateTo") Long dateTo,
                                                               @Param("creditorInstitutionCode") String creditorInstitutionCode);
-    @Query("SELECT count(1) as mbdCount, c.creditor.idPA  FROM c JOIN tl in c.transferList WHERE tl.MBDAttachment != null AND c._ts >= @dateFrom AND c._ts <= @dateTo GROUP BY c.creditor.idPA")
+    @Query("SELECT count(1) as mbdCount, tl.fiscalCodePA  FROM c JOIN tl in c.transferList WHERE tl.MBDAttachment != null AND c._ts >= @dateFrom AND c._ts <= @dateTo GROUP BY tl.fiscalCodePA")
     List<PaMbdCount> getPaWithMbdAndCount(@Param("dateFrom") Long dateFrom, @Param("dateTo") Long dateTo);
 
 }
