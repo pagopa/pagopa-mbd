@@ -10,6 +10,7 @@ import it.gov.pagopa.mbd.exception.MBDReportingException;
 import it.gov.pagopa.mbd.exception.MBDRetryException;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
 import it.gov.pagopa.mbd.repository.model.BizEventEntity;
+import it.gov.pagopa.mbd.repository.model.PaMbdCount;
 import it.gov.pagopa.mbd.repository.model.Transfer;
 import it.gov.pagopa.mbd.service.model.MarcaDaBolloRaw;
 import it.gov.pagopa.mbd.service.model.csv.RecordA;
@@ -110,21 +111,39 @@ public class GenerateReportingService {
                   configCacheService.getConfigData().getConfigurations(),
                   "rendicontazioni-bollo.dateFormat"));
 
+      // 1. Get PA from cache
       Map<String, CreditorInstitutionDto> organizations =
           configCacheService.getConfigData().getCreditorInstitutions();
+      int totalPaFromCache = organizations.size();
+      
+      // 2. Get PA with at least one MBD from the repository
+      List<PaMbdCount> paWithMbdList = bizEventRepository.getPaWithMbdAndCount(dateFrom, dateTo);
+      int totalPaWithMbd = paWithMbdList.size();
+      
+      // summary logs
+      log.info("[{}] Total PAs retrieved from cache: {}", executionId, totalPaFromCache);
+      log.info("[{}] PA with at least one associated mbd: {}", executionId, totalPaWithMbd);
+      for (PaMbdCount paCount : paWithMbdList) {
+          log.info("[{}] PA: {}, mbdCount: {}", executionId, paCount.getIdPA(), paCount.getMbdCount());
+      }
+      
+      // 3. Create the list of PAs actually to be processed
+      List<String> paIdWithMbd = paWithMbdList.stream()
+              .map(PaMbdCount::getIdPA)
+              .toList();
 
-      // filter and sort the PAs based on idDominio in ascending order
-      List<CreditorInstitutionDto> ecs =
-          organizations.values().stream()
-              .filter(
-                  pa ->
-                      organizationsRequest == null
+      // 4. Apply organizationRequest filter if it exists and create sorted list only for PAs with MBD
+      List<CreditorInstitutionDto> ecs = organizations.values().stream()
+              .filter(pa ->
+                      paIdWithMbd.contains(pa.getCreditorInstitutionCode()) &&
+                      (organizationsRequest == null
                           || organizationsRequest.length == 0
-                          || Arrays.asList(organizationsRequest)
-                              .contains(pa.getCreditorInstitutionCode()))
+                          || Arrays.asList(organizationsRequest).contains(pa.getCreditorInstitutionCode()))
+              )
               .sorted(Comparator.comparing(CreditorInstitutionDto::getCreditorInstitutionCode))
               .toList();
 
+      // 5. Process only PAs actually with MBD
       for (CreditorInstitutionDto pa : ecs) {
         processData(executionId, dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
       }

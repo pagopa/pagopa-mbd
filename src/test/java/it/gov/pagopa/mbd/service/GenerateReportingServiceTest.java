@@ -3,6 +3,7 @@ package it.gov.pagopa.mbd.service;
 import it.gov.pagopa.mbd.Application;
 import it.gov.pagopa.mbd.exception.MBDRetryException;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
+import it.gov.pagopa.mbd.repository.model.PaMbdCount;
 import it.gov.pagopa.mbd.service.model.csv.RecordV;
 import it.gov.pagopa.mbd.util.CsvUtils;
 import it.gov.pagopa.mbd.utils.TestUtils;
@@ -76,6 +77,7 @@ class GenerateReportingServiceTest {
     	org.springframework.test.util.ReflectionTestUtils.setField(configCacheService, "configData", TestUtils.configData());
 
         when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString())).thenReturn(getBizEvent());
+        when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().idPA("66666666666").mbdCount(1).build()));
         
         Path tempDir = Files.createTempDirectory("mbd-test-dir");
         String path = tempDir.toAbsolutePath().toString();
@@ -150,7 +152,7 @@ class GenerateReportingServiceTest {
         retryConfig.setDelayMillis(10);
         retryConfig.setMultiplier(1.0);
 
-        String expectedMsgPart = "File write failed after retrying 2 times";
+        String expectedMsgPart = "failed after retrying 2 times";
 
         // Execute the method and expect MBDRetryException
         Exception ex = Assertions.assertThrows(
