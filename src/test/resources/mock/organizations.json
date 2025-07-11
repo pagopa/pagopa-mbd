@@ -30,5 +30,21 @@
     "psp_payment": true,
     "reporting_ftp": false,
     "reporting_zip": false
-  }
+  },
+  "66666666666": {
+      "creditor_institution_code": "66666666666",
+      "enabled": true,
+      "business_name": "Istituto della Prova 66666666666",
+      "description": null,
+      "address": {
+        "location": "Via delle prove",
+        "city": "Città prova",
+        "zip_code": "20000",
+        "country_code": "CP",
+        "tax_domicile": "Via delle prove"
+      },
+      "psp_payment": false,
+      "reporting_ftp": false,
+      "reporting_zip": false
+    }
 }

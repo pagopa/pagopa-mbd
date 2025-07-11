@@ -3,6 +3,8 @@ package it.gov.pagopa.mbd.repository;
 import com.azure.spring.data.cosmos.repository.CosmosRepository;
 import com.azure.spring.data.cosmos.repository.Query;
 import it.gov.pagopa.mbd.repository.model.BizEventEntity;
+import it.gov.pagopa.mbd.repository.model.PaMbdCount;
+
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -15,5 +17,7 @@ public interface BizEventRepository extends CosmosRepository<BizEventEntity, Str
     List<BizEventEntity> getBizEventsByDateFromAndDateToAndEC(@Param("dateFrom") Long dateFrom,
                                                               @Param("dateTo") Long dateTo,
                                                               @Param("creditorInstitutionCode") String creditorInstitutionCode);
+    @Query("SELECT count(1) as mbdCount, tl.fiscalCodePA  FROM c JOIN tl in c.transferList WHERE tl.MBDAttachment != null AND c._ts >= @dateFrom AND c._ts <= @dateTo GROUP BY tl.fiscalCodePA")
+    List<PaMbdCount> getPaWithMbdAndCount(@Param("dateFrom") Long dateFrom, @Param("dateTo") Long dateTo);
 
 }
