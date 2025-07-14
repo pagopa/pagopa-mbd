@@ -100,12 +100,12 @@ public class GenerateReportingService {
 
     try {
       // c.timestamp in Cosmos DB biz event is a UNIX timestamp in milliseconds
-      // long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-      // long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).toEpochMilli();
+      long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+      long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).toEpochMilli();
 
       // c._ts in Cosmos DB biz event is a UNIX timestamp in seconds
-      long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
-      long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).getEpochSecond();
+      // long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
+      // long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).getEpochSecond();
 
       CacheInstitutionData cacheInstitutionData = loadInstitutionData();
 
