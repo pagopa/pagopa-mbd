@@ -10,6 +10,7 @@ import it.gov.pagopa.mbd.exception.MBDReportingException;
 import it.gov.pagopa.mbd.exception.MBDRetryException;
 import it.gov.pagopa.mbd.repository.BizEventRepository;
 import it.gov.pagopa.mbd.repository.model.BizEventEntity;
+import it.gov.pagopa.mbd.repository.model.PaMbdCount;
 import it.gov.pagopa.mbd.repository.model.Transfer;
 import it.gov.pagopa.mbd.service.model.MarcaDaBolloRaw;
 import it.gov.pagopa.mbd.service.model.csv.RecordA;
@@ -33,11 +34,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +49,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @CacheConfig(cacheNames = "cache")
@@ -110,21 +115,37 @@ public class GenerateReportingService {
                   configCacheService.getConfigData().getConfigurations(),
                   "rendicontazioni-bollo.dateFormat"));
 
+      // 1. Get PA from cache
       Map<String, CreditorInstitutionDto> organizations =
           configCacheService.getConfigData().getCreditorInstitutions();
+      int totalPaFromCache = organizations.size();
+      
+      // 2. Get PA with at least one MBD from the repository
+      List<PaMbdCount> paWithMbdList = bizEventRepository.getPaWithMbdAndCount(dateFrom, dateTo);
+      int totalPaWithMbd = paWithMbdList.size();
+      
+      // summary logs
+      log.info("[{}] Total PAs retrieved from cache: {}", executionId, totalPaFromCache);
+      log.info("[{}] Total PAs with at least one associated mbd: {} (range from {} to {})", executionId, totalPaWithMbd, dateFrom, dateTo);
+      log.debug("[{}] List of PAs with at least one associated mbd: {}", executionId, new ObjectMapper().writeValueAsString(paWithMbdList));
+   
+      // 3. Create the list of PAs actually to be processed
+      List<String> paIdWithMbd = paWithMbdList.stream()
+              .map(PaMbdCount::getFiscalCodePA)
+              .toList();
 
-      // filter and sort the PAs based on idDominio in ascending order
-      List<CreditorInstitutionDto> ecs =
-          organizations.values().stream()
-              .filter(
-                  pa ->
-                      organizationsRequest == null
+      // 4. Apply organizationRequest filter if it exists and create sorted list only for PAs with MBD
+      List<CreditorInstitutionDto> ecs = organizations.values().stream()
+              .filter(pa ->
+                      paIdWithMbd.contains(pa.getCreditorInstitutionCode()) &&
+                      (organizationsRequest == null
                           || organizationsRequest.length == 0
-                          || Arrays.asList(organizationsRequest)
-                              .contains(pa.getCreditorInstitutionCode()))
+                          || Arrays.asList(organizationsRequest).contains(pa.getCreditorInstitutionCode()))
+              )
               .sorted(Comparator.comparing(CreditorInstitutionDto::getCreditorInstitutionCode))
               .toList();
 
+      // 5. Process only PAs actually with MBD
       for (CreditorInstitutionDto pa : ecs) {
         processData(executionId, dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
       }
@@ -147,20 +168,30 @@ public class GenerateReportingService {
       List<BizEventEntity> bizEvents =
           bizEventRepository.getBizEventsByDateFromAndDateToAndEC(
               dateFrom, dateTo, pa.getCreditorInstitutionCode());
+      
 
       if (!bizEvents.isEmpty()) {
         LocalDateTime now = LocalDateTime.now();
         String dataInvioFlusso = now.format(dateFormat);
+        
+        log.info("[{}] Total biz-events with at least one associated mbd: {} (range from {} to {})", executionId, bizEvents.size(), dateFrom, dateTo);
+        
+        Map<String, String> uniqueMbdAttachments = new HashMap<>();
 
-        List<String> mbdAttachments =
-            bizEvents.stream()
-                .flatMap(
-                    b ->
-                        b.getTransferList().stream()
-                            .map(Transfer::getMBDAttachment)
-                            .filter(StringUtils::isNotBlank))
-                .toList();
+        for (BizEventEntity event : bizEvents) {
+            String eventId = event.getId();
+            for (Transfer t : event.getTransferList()) {
+                if (pa.getCreditorInstitutionCode().equals(t.getFiscalCodePA())
+                        && StringUtils.isNotBlank(t.getMBDAttachment())) {
+                    String uniqueKey = eventId + "|" + t.getIdTransfer();
+                    // Put MBD only if it has not already been mapped
+                    uniqueMbdAttachments.putIfAbsent(uniqueKey, t.getMBDAttachment());
+                }
+            }
+        }
 
+        List<String> mbdAttachments = new ArrayList<>(uniqueMbdAttachments.values());
+        
         List<RecordV> allRecordsV =
             createRecordVList(
                 mbdAttachments, cacheInstitutionData, pa, dataInvioFlusso, progressivo);
