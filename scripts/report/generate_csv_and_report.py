@@ -66,6 +66,8 @@ def upload_csv(args, file_da_predisporre, file_da_inviare):
         csv_bytes = file.read()
         csv_folder.upload_file(file_name="resoconto_jobs.csv",data=csv_bytes)
 
+    return output_file
+
 def main():
 
     args = parse_arguments()
@@ -76,7 +78,7 @@ def main():
 
     lista_predisporre = list(cartella_predisporre.list_directories_and_files())
     lista_inviare = list(cartella_inviare.list_directories_and_files())
-    upload_csv(args, lista_predisporre, lista_inviare)
+    output_file = upload_csv(args, lista_predisporre, lista_inviare)
 
     bot_token = args.slack_webapi_token
     channel_id = args.slack_channel_id
@@ -85,7 +87,7 @@ def main():
     try:
         result = client.files_upload_v2(
             channel = channel_id,
-            initial_comment = f"Generazione del report cumulativo per le stazioni in Stand-In [{today_date}]",
+            initial_comment = f"Generazione del report cumulativo per i file mbd [{today_date}]",
             file = output_file,
         )
         logger.info(f"Response from Slack. Is OK? [{result['ok']}]")
