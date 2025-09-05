@@ -1,6 +1,9 @@
 name: Generate and send report
 
 on:
+  push:
+    branches:
+      - "PAGOPA-3240"
   schedule:
     - cron: '00 12 * * *' # (07:00AM GTM) send last day report
   workflow_dispatch:
