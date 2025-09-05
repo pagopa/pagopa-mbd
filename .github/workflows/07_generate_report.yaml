@@ -52,7 +52,7 @@ jobs:
     needs: [ create_runner ]
     runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
     environment:
-      name: ${{ github.event.inputs.environment || 'prod' }}
+      name: ${{ github.event.inputs.environment || 'dev' }} #TODO change to prod
     steps:
       - name: Checkout
         id: checkout
