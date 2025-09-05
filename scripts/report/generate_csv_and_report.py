@@ -23,6 +23,10 @@ def parse_arguments():
     # Parametri per connessione a Azure storage account
     parser.add_argument('--storage_conn_string', required=True,
                         help='Storage account connection string')
+    parser.add_argument('--slack-webapi-token', required=True,
+                        help='Token for Slack Web API bot')
+    parser.add_argument('--slack-channel-id', required=True,
+                        help='Token for Slack Web API bot')
 
     return parser.parse_args()
 
