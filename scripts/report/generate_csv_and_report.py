@@ -91,7 +91,7 @@ def main():
     try:
         result = client.files_upload_v2(
             channel = channel_id,
-            initial_comment = f"Generazione del report cumulativo per i file mbd [{get_today_date()}]",
+            initial_comment = f"Generazione del report dell'ultimo mese per i file mbd [{get_today_date()}]",
             file = output_file,
         )
         logger.info(f"Response from Slack. Is OK? [{result['ok']}]")
