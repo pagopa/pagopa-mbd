@@ -63,5 +63,5 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_subkey" {
 
 data "azurerm_key_vault_secret" "key_vault_mbd_storage_connection_string" {
   name         = "mbd-storage-account-connection-string"
-  key_vault_id = data.azurerm_key_vault.key_vault.id
+  key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
