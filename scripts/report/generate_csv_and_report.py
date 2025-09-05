@@ -57,9 +57,11 @@ def upload_csv(args, file_da_predisporre, file_da_inviare):
     csv_folder = firmatore.get_subdirectory_client(directory_name="resoconto_jobs")
     output_file = "resoconto_jobs.csv"
     if csv_folder.exists():
-        resoconto_jobs_file = csv_folder.get_file_client(output_file)
-        resoconto_jobs_file_content = resoconto_jobs_file.download_file().readall() #eccezione qua
-        reader_list = update_csv(resoconto_jobs_file_content, output_file, file_da_predisporre, file_da_inviare)
+        try:
+            resoconto_jobs_file_content = resoconto_jobs_file.download_file().readall()
+            reader_list = update_csv(resoconto_jobs_file_content, output_file, file_da_predisporre, file_da_inviare)
+        except Exception as e:
+            reader_list = [["Data", "File da predisporre", "File da inviare"], [get_today_date(), len(file_da_predisporre), len(file_da_inviare)]]
         create_csv(output_file, reader_list)
     else:
         list_to_insert = [["Data", "File da predisporre", "File da inviare"], [get_today_date(), len(file_da_predisporre), len(file_da_inviare)]]
