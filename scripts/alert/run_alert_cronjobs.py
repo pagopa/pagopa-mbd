@@ -55,7 +55,6 @@ def alert_file_da_inviare(file_service, share_name, directory_predisporre_name, 
     for file_da_predisporre in files_predisporre_backup:
         if isinstance(file_da_predisporre, File):
             if not file_da_predisporre.name in file_da_inviare_list_last_week:
-                print(file_da_predisporre.name)
                 logger.error("ALERT HERE")
 
 def main():

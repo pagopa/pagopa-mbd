@@ -1,11 +1,11 @@
-name: Generate and send report
+name: Run alert script
 
 on:
   push:
     branches:
       - "PAGOPA-3240"
   schedule:
-    - cron: '00 12 * * *' # (07:00AM GTM) send last day report
+    - cron: '00 12 * * *' # (07:00AM GTM) check last week alert
   workflow_dispatch:
 
 
@@ -47,8 +47,8 @@ jobs:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
           environment: ${{ github.event.inputs.environment || 'prod' }}
 
-  report_generation:
-    name: Generate and send report
+  generate_alert_run:
+    name: Run alert script
     needs: [ create_runner ]
     runs-on: [ self-hosted, "${{ needs.create_runner.outputs.runner_name }}" ]
     environment:
@@ -58,12 +58,6 @@ jobs:
         id: checkout
         uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
 
-      - name: Generate variables
-        id: generate_vars
-        run: |
-          echo "report_start_date=${{ env.start_date || github.event.inputs.start_date }}" >> $GITHUB_ENV
-          echo "report_end_date=${{ env.end_date || github.event.inputs.end_date }}" >> $GITHUB_ENV
-
       - name: Setup Python environment
         uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # v4
         with:
@@ -71,7 +65,7 @@ jobs:
 
       - name: Install dependencies on Python environment
         run: |
-          cd ./scripts/report
+          cd ./scripts/alert
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Login
@@ -83,15 +77,15 @@ jobs:
           tenant-id: ${{ secrets.TENANT_ID }}
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
 
-      - name: Generate report
+      - name: Run alert script
         run: |
-          cd ./scripts/report
+          cd ./scripts/alert
           python run_alert_cronjobs.py \
             --storage_conn_string "${{ secrets.STORAGE_CONN_STRING }}" 
 
-  approve_report_script:
+  approve_alert_script:
     needs: [ create_runner ]
-    name: Execute auto-approve for 'Generate and send report'
+    name: Execute auto-approve for 'Run alert script'
     runs-on: ubuntu-latest
     steps:
       - name: Auto approve
@@ -102,7 +96,7 @@ jobs:
 
   cleanup_runner:
     name: Cleanup Runner
-    needs: [ create_runner, report_generation ]
+    needs: [ create_runner, generate_alert_run ]
     if: always()
     runs-on: ubuntu-22.04
     environment:
@@ -122,7 +116,7 @@ jobs:
           pat_token: ${{ secrets.BOT_TOKEN_GITHUB }}
 
   approve_cleanup_runner:
-    needs: [ report_generation ]
+    needs: [ generate_alert_run ]
     name: Execute auto-approve for 'Cleanup Runner'
     runs-on: ubuntu-latest
     steps:
