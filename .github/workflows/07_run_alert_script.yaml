@@ -86,10 +86,8 @@ jobs:
       - name: Generate report
         run: |
           cd ./scripts/report
-          python generate_csv_and_report.py \
-            --storage_conn_string "${{ secrets.STORAGE_CONN_STRING }}" \
-            --slack-webapi-token "${{ secrets.SLACK_WEBAPI_BOT_TOKEN }}" \
-            --slack-channel-id "${{ secrets.REPORT_CHANNEL_ID }}" 
+          python run_alert_cronjobs.py \
+            --storage_conn_string "${{ secrets.STORAGE_CONN_STRING }}" 
 
   approve_report_script:
     needs: [ create_runner ]
