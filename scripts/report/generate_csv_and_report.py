@@ -1,12 +1,8 @@
-from azure.storage.fileshare import ShareDirectoryClient
-import datetime
+from azure.storage.file import *
 import argparse
 import logging
-import sys
-import csv
-from io import StringIO
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
+import datetime
+from zoneinfo import ZoneInfo
 
 # Configurazione del logging
 logging.basicConfig(
@@ -23,83 +19,58 @@ def parse_arguments():
     # Parametri per connessione a Azure storage account
     parser.add_argument('--storage_conn_string', required=True,
                         help='Storage account connection string')
-    parser.add_argument('--slack-webapi-token', required=True,
-                        help='Token for Slack Web API bot')
-    parser.add_argument('--slack-channel-id', required=True,
-                        help='Token for Slack Web API bot')
 
     return parser.parse_args()
 
-def get_today_date():
-    today = datetime.datetime.today()
-    return today.strftime('%Y-%m-%d')
+def get_datetime_one_week():
+    return datetime.datetime.now(ZoneInfo("Europe/Rome")) - datetime.timedelta(days=7)
 
-def create_csv(output_file, list_to_insert):
-    with open(output_file, 'w') as out_write:
-        writer = csv.writer(out_write)
-        for line in list_to_insert:
-            writer.writerow(line)
+def alert_file_da_predisporre(file_service, share_name, directory_predisporre_name):
+    files_predisporre_backup = file_service.list_directories_and_files(share_name, directory_predisporre_name)
+    time_one_week = get_datetime_one_week()
 
-def update_csv(resoconto_jobs_file_content, output_file, file_da_predisporre, file_da_inviare):
-    reader = csv.reader(StringIO(resoconto_jobs_file_content.decode()), delimiter=",")
-    reader_list = list(reader)
-    for row in reader_list:
-        if get_today_date() == row[0]:
-            logger.error(f"Row with today date already present: {get_today_date()}")
-            sys.exit(1)
-    reader_list.append([get_today_date(), len(file_da_predisporre), len(file_da_inviare)])
-    if len(reader_list) > 28:
-        reader_list.pop(1)
-    return reader_list
-
-def upload_csv(args, file_da_predisporre, file_da_inviare):
-    firmatore = ShareDirectoryClient.from_connection_string(conn_str=args.storage_conn_string,share_name="firmatore",directory_path="")
-    csv_folder = firmatore.get_subdirectory_client(directory_name="resoconto_jobs")
-    output_file = "resoconto_jobs.csv"
-    if csv_folder.exists():
-        try:
-            resoconto_jobs_file_content = resoconto_jobs_file.download_file().readall()
-            reader_list = update_csv(resoconto_jobs_file_content, output_file, file_da_predisporre, file_da_inviare)
-        except Exception as e:
-            reader_list = [["Data", "File da predisporre", "File da inviare"], [get_today_date(), len(file_da_predisporre), len(file_da_inviare)]]
-        create_csv(output_file, reader_list)
+    for file_da_predisporre in files_predisporre_backup:
+        if isinstance(file_da_predisporre, File):
+            file_name = file_da_predisporre.name
+            file = file_service.get_file_properties(share_name, directory_predisporre_name, file_name, timeout=None, snapshot=None)
+            if file.properties.last_modified > time_one_week:
+                break
     else:
-        list_to_insert = [["Data", "File da predisporre", "File da inviare"], [get_today_date(), len(file_da_predisporre), len(file_da_inviare)]]
-        create_csv(output_file, list_to_insert)
-        csv_folder = firmatore.create_subdirectory(directory_name="resoconto_jobs")
+        logger.error("ALERT HERE")
 
-    with open(output_file, 'rb') as file:
-        csv_bytes = file.read()
-        csv_folder.upload_file(file_name="resoconto_jobs.csv",data=csv_bytes)
+def alert_file_da_inviare(file_service, share_name, directory_predisporre_name, directory_inviare_name):
+    files_predisporre_backup = file_service.list_directories_and_files(share_name, directory_predisporre_name)
+    files_inviare_backup = file_service.list_directories_and_files(share_name, directory_inviare_name)
+    time_one_week = get_datetime_one_week()
 
-    return output_file
+    file_da_inviare_list_last_week = set()
+
+    for file_da_inviare in files_inviare_backup:
+        if isinstance(file_da_inviare, File):
+            file_name = file_da_inviare.name
+            file = file_service.get_file_properties(share_name, directory_inviare_name, file_name, timeout=None, snapshot=None)
+            if file.properties.last_modified > time_one_week:
+                file_da_inviare_list_last_week.add(file_name)
+
+    for file_da_predisporre in files_predisporre_backup:
+        if isinstance(file_da_predisporre, File):
+            if not file_da_predisporre.name in file_da_inviare_list_last_week:
+                print(file_da_predisporre.name)
+                logger.error("ALERT HERE")
 
 def main():
 
     args = parse_arguments()
     conn_string_storage = args.storage_conn_string
 
-    cartella_predisporre = ShareDirectoryClient.from_connection_string(conn_str=conn_string_storage,share_name="firmatore",directory_path="./SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre")
-    cartella_inviare = ShareDirectoryClient.from_connection_string(conn_str=conn_string_storage,share_name="firmatore",directory_path="./SID-Flussi-e-bollo/SID_cartelle/file_da_inviare")
+    file_service = FileService(connection_string=conn_string_storage)
+    share_name = "firmatore"
+    directory_predisporre_name = "backup/SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre"
+    directory_inviare_name = "backup/SID-Flussi-e-bollo/SID_cartelle/file_da_inviare"
 
-    lista_predisporre = list(cartella_predisporre.list_directories_and_files())
-    lista_inviare = list(cartella_inviare.list_directories_and_files())
-    output_file = upload_csv(args, lista_predisporre, lista_inviare)
+    alert_file_da_predisporre(file_service, share_name, directory_predisporre_name)
 
-    bot_token = args.slack_webapi_token
-    channel_id = args.slack_channel_id
-
-    client = WebClient(token = bot_token)
-    try:
-        result = client.files_upload_v2(
-            channel = channel_id,
-            initial_comment = f"Generazione del report dell'ultimo mese per i file mbd [{get_today_date()}]",
-            file = output_file,
-        )
-        logger.info(f"Response from Slack. Is OK? [{result['ok']}]")
-
-    except SlackApiError as e:
-        logger.error("Error uploading file: {}".format(e))
+    alert_file_da_inviare(file_service, share_name, directory_predisporre_name, directory_inviare_name)
 
     logger.info("Operation completed successfully")
 
