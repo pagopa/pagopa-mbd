@@ -7,6 +7,15 @@ on:
   schedule:
     - cron: '00 12 * * *' # (07:00AM GTM) check last week alert
   workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        description: Select the Environment
+        options:
+          - dev
+          - uat
+          - prod
 
 
 permissions:
@@ -82,6 +91,7 @@ jobs:
           cd ./scripts/alert
           python run_alert_cronjobs.py \
             --storage_conn_string "${{ secrets.STORAGE_CONN_STRING }}" 
+            --slack-webhook "${{ secrets.SLACK_WEBHOOK }}"
 
   approve_alert_script:
     needs: [ create_runner ]
