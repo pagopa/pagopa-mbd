@@ -80,7 +80,7 @@ jobs:
         run: |
           cd ./scripts/alert
           python run_alert_cronjobs.py \
-            --storage_conn_string "${{ secrets.STORAGE_CONN_STRING }}" 
+            --storage_conn_string "${{ secrets.PROD_STORAGE_CONN_STRING }}" 
             --slack-webhook "${{ secrets.SLACK_WEBHOOK }}"
 
   approve_alert_script:
