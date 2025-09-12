@@ -25,7 +25,6 @@ locals {
     "TENANT_ID" : data.azurerm_client_config.current.tenant_id,
     "SUBSCRIPTION_ID" : data.azurerm_subscription.current.subscription_id,
     "SUBKEY" : data.azurerm_key_vault_secret.key_vault_integration_test_subkey.value,
-    "STORAGE_CONN_STRING": data.azurerm_key_vault_secret.key_vault_mbd_storage_connection_string.value,
   }
   env_variables = {
     "CONTAINER_APP_ENVIRONMENT_NAME" : local.container_app_environment.name,
@@ -40,6 +39,13 @@ locals {
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_cd_token.value,
     "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
     "SLACK_ALERT_WEBHOOK" : data.azurerm_key_vault_secret.key_vault_slack_alert_webhook.value
+  }
+
+  special_repo_secrets = {
+    "STORAGE_CONNECTION_STRING" : {
+      "key" : "${upper(var.env)}_STORAGE_CONN_STRING",
+      "value" : data.azurerm_key_vault_secret.key_vault_mbd_storage_connection_string.value
+    },
   }
 }
 
@@ -78,5 +84,12 @@ resource "github_actions_secret" "repo_secrets" {
   repository      = local.github.repository
   secret_name     = each.key
   plaintext_value = each.value
+}
+
+resource "github_actions_secret" "special_repo_secrets" {
+  for_each        = local.special_repo_secrets
+  repository      = local.github.repository
+  secret_name     = each.value.key
+  plaintext_value = each.value.value
 }
 
