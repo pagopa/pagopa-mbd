@@ -1,12 +1,9 @@
 name: Run alert script
 
 on:
-  push:
-    branches:
-      - "PAGOPA-3240"
   schedule:
     - cron: '00 14 * * 1' # (07:00AM GTM) check last week alert
-
+  workflow_dispatch:
 
 permissions:
   id-token: write
