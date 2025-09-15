@@ -19,11 +19,11 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='Extract mbd events from Azure storage account')
 
     # Parametro per connessione a Azure storage account
-    parser.add_argument('--storage-conn-string', required=True,
+    parser.add_argument('--storage_conn_string', required=True,
                         help='Storage account connection string')
 
     # Parametro webhook per slack
-    parser.add_argument('--slack-alert-webhook', required=True,
+    parser.add_argument('--slack_alert_webhook', required=True,
                         help='Slack channel webhook')
 
     return parser.parse_args()
@@ -128,8 +128,8 @@ def alert_file_da_inviare(file_service, share_name, directory_predisporre_name, 
 def main():
 
     args = parse_arguments()
-    conn_string_storage = args.storage-conn-string
-    slack_alert_webhook = args.slack-alert-webhook
+    conn_string_storage = args.storage_conn_string
+    slack_alert_webhook = args.slack_alert_webhook
 
     file_service = FileService(connection_string=conn_string_storage)
     share_name = "firmatore"
