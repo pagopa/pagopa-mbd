@@ -17,7 +17,7 @@ if [ "$count" -gt 0 ]; then
     }
 
     for name in PEC*; do
-       newname="PAGPA.70174.SIAATA.SIA$(echo "$name" | cut -c4-)"
+       newname="SIA$(echo "$name" | cut -c4-)"
        mv "$name" "$newname"
     done
 
@@ -36,7 +36,7 @@ if [ "$count" -gt 0 ]; then
     # chmod 600 "$FLUSSI_DIR/pagopa_pgsg_rsa"
     # Esegui sftp usando il file temporaneo
 
-    echo "mput $IN_DIR/PAGPA* /Inbox/" | sftp -o StrictHostKeyChecking=no -P "${SFTP_PORT}" -i "$KEY_FILE" "${SFTP_USERNAME}@${SFTP_HOST}"
+    echo "mput $IN_DIR/SIA* /Inbox/" | sftp -o StrictHostKeyChecking=no -P "${SFTP_PORT}" -i "$KEY_FILE" "${SFTP_USERNAME}@${SFTP_HOST}"
     # echo "mput $IN_DIR/PAGPA* /Inbox/" | sftp -o StrictHostKeyChecking=no -P "${SFTP_PORT}" -i "$FLUSSI_DIR/pagopa_pgsg_rsa" "${SFTP_USERNAME}@${SFTP_HOST}"
     # Cancella il file temporaneo
     rm -f "$KEY_FILE"
@@ -49,12 +49,12 @@ if [ "$count" -gt 0 ]; then
 
     echo ""
     echo "Start backupfiles"
-    count=$(find "$IN_DIR" -type f -name "PAGPA*" | wc -l)
+    count=$(find "$IN_DIR" -type f -name "SIA*" | wc -l)
     if [ "$count" -gt 0 ]; then
         mkdir -p "$BACKUP_DIR"
-        mv -v "$IN_DIR"/PAGPA* "$BACKUP_DIR"
+        mv -v "$IN_DIR"/SIA* "$BACKUP_DIR"
     else
-        echo "Files $IN_DIR/PAGPA* not found"
+        echo "Files $IN_DIR/SIA* not found"
     fi
     echo "End backupfiles"
 else
