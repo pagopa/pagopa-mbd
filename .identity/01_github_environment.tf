@@ -32,12 +32,21 @@ locals {
     "CLUSTER_NAME" : local.aks_cluster.name,
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "NAMESPACE" : local.domain,
-    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
+    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id,
   }
   repo_secrets = {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_cd_token.value,
     "CUCUMBER_PUBLISH_TOKEN" : data.azurerm_key_vault_secret.key_vault_cucumber_token.value,
+    "SLACK_ALERT_WEBHOOK" : data.azurerm_key_vault_secret.key_vault_slack_alert_webhook.value
+    "SLACK_WEBHOOK_URL_DEPLOY" : data.azurerm_key_vault_secret.key_vault_slack_deploy_webhook.value
+  }
+
+  special_repo_secrets = {
+    "STORAGE_CONNECTION_STRING" : {
+      "key" : "${upper(var.env)}_STORAGE_CONN_STRING",
+      "value" : data.azurerm_key_vault_secret.key_vault_mbd_storage_connection_string.value
+    },
   }
 }
 
@@ -76,5 +85,12 @@ resource "github_actions_secret" "repo_secrets" {
   repository      = local.github.repository
   secret_name     = each.key
   plaintext_value = each.value
+}
+
+resource "github_actions_secret" "special_repo_secrets" {
+  for_each        = local.special_repo_secrets
+  repository      = local.github.repository
+  secret_name     = each.value.key
+  plaintext_value = each.value.value
 }
 
