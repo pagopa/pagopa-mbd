@@ -23,7 +23,7 @@ def parse_arguments():
                         help='Storage account connection string')
 
     # Parametro webhook per slack
-    parser.add_argument('--slack-webhook', required=True,
+    parser.add_argument('--slack_alert_webhook', required=True,
                         help='Slack channel webhook')
 
     return parser.parse_args()
@@ -129,16 +129,16 @@ def main():
 
     args = parse_arguments()
     conn_string_storage = args.storage_conn_string
-    slack_webhook = args.slack_webhook
+    slack_alert_webhook = args.slack_alert_webhook
 
     file_service = FileService(connection_string=conn_string_storage)
     share_name = "firmatore"
     directory_predisporre_name = "backup/SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre"
     directory_inviare_name = "backup/SID-Flussi-e-bollo/SID_cartelle/file_da_inviare"
 
-    alert_file_da_predisporre(file_service, share_name, directory_predisporre_name, slack_webhook)
+    alert_file_da_predisporre(file_service, share_name, directory_predisporre_name, slack_alert_webhook)
 
-    alert_file_da_inviare(file_service, share_name, directory_predisporre_name, directory_inviare_name, slack_webhook)
+    alert_file_da_inviare(file_service, share_name, directory_predisporre_name, directory_inviare_name, slack_alert_webhook)
 
     logger.info("Operation completed successfully")
 
