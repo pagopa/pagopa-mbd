@@ -136,9 +136,9 @@ def main():
     directory_predisporre_name = "backup/SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre"
     directory_inviare_name = "backup/SID-Flussi-e-bollo/SID_cartelle/file_da_inviare"
 
-    alert_file_da_predisporre(file_service, share_name, directory_predisporre_name, slack_webhook)
+    alert_file_da_predisporre(file_service, share_name, directory_predisporre_name, slack_alert_webhook)
 
-    alert_file_da_inviare(file_service, share_name, directory_predisporre_name, directory_inviare_name, slack_webhook)
+    alert_file_da_inviare(file_service, share_name, directory_predisporre_name, directory_inviare_name, slack_alert_webhook)
 
     logger.info("Operation completed successfully")
 
