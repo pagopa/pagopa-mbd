@@ -99,7 +99,11 @@ class GenerateReportingServiceTest {
                             assertNotNull(result.getResponse());
                         });
 
-        verify(bizEventRepository,times(1)).getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
+        verify(bizEventRepository, times(1))
+        .getPaWithMbdAndCount(anyLong(), anyLong());
+        
+        verify(bizEventRepository, never())
+        .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
         
         Files.walk(tempDir)
         .sorted(Comparator.reverseOrder())
@@ -136,6 +140,9 @@ class GenerateReportingServiceTest {
                             assertNotNull(result);
                             assertNotNull(result.getResponse());
                         });
+        
+        verify(bizEventRepository, times(1))
+        .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
     }
     
     @Test
