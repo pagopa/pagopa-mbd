@@ -41,7 +41,7 @@ import static it.gov.pagopa.mbd.utils.TestUtils.getBizEvent;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
 @ActiveProfiles(profiles = "test")
@@ -73,7 +73,7 @@ class GenerateReportingServiceTest {
     	
     	org.springframework.test.util.ReflectionTestUtils.setField(configCacheService, "configData", TestUtils.configData());
 
-        when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString())).thenReturn(getBizEvent());
+        when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class))).thenReturn(getBizEvent());
         when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().fiscalCodePA("0123456789").mbdCount(1).build()));
         
         Path tempDir = Files.createTempDirectory("mbd-test-dir");
@@ -99,7 +99,7 @@ class GenerateReportingServiceTest {
                             assertNotNull(result.getResponse());
                         });
 
-        verify(bizEventRepository,times(1)).getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString());
+        verify(bizEventRepository,times(1)).getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
         
         Files.walk(tempDir)
         .sorted(Comparator.reverseOrder())
@@ -111,7 +111,7 @@ class GenerateReportingServiceTest {
     void generateForSpecificEc() throws Exception {
         org.springframework.test.util.ReflectionTestUtils.setField(configCacheService, "configData", TestUtils.configData());
 
-        when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), anyString())).thenReturn(getBizEvent());
+        when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class))).thenReturn(getBizEvent());
         when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().fiscalCodePA("0123456789").mbdCount(1).build()));
         
         Path tempDir = Files.createTempDirectory("mbd-test-dir");
