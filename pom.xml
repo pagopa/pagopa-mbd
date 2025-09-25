@@ -12,7 +12,7 @@
 
     <groupId>it.gov.pagopa</groupId>
     <artifactId>pagopa-mbd</artifactId>
-    <version>0.2.6</version>
+    <version>0.2.7</version>
     <name>pagoPA MBD</name>
     <description>A microservice that permits to handle Digital Stamps in pagoPA platform</description>
 
