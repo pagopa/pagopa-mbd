@@ -149,6 +149,8 @@ public class GenerateReportingService {
       for (CreditorInstitutionDto pa : ecs) {
         processData(executionId, dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
       }
+      
+      log.info("[{}] End MBD reporting generation for date {}", executionId, date);
 
     } catch (Exception e) {
         log.error("[{}] General error while generating MBD reports: {}", executionId, e.getMessage(), e);
