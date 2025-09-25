@@ -47,7 +47,7 @@ public class TestUtils {
         orgs.putIfAbsent("66666666666", dummyCi("66666666666", "Dummy PA 66666666666"));
         orgs.putIfAbsent("0123456789", dummyCi("0123456789", "Dummy PA 0123456789"));
         
-        configDataV1.setCreditorInstitutions(getOrganizations());
+        configDataV1.setCreditorInstitutions(orgs);
 
         return configDataV1;
     }
