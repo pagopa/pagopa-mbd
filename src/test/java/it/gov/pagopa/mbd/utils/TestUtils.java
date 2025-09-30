@@ -42,7 +42,12 @@ public class TestUtils {
         configDataV1.setStations(new HashMap<>());
 
         configDataV1.setConfigurations(getConfigurations());
-        configDataV1.setCreditorInstitutions(getOrganizations());
+        
+        Map<String, it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto> orgs = getOrganizations();
+        orgs.putIfAbsent("66666666666", dummyCi("66666666666", "Dummy PA 66666666666"));
+        orgs.putIfAbsent("0123456789", dummyCi("0123456789", "Dummy PA 0123456789"));
+        
+        configDataV1.setCreditorInstitutions(orgs);
 
         return configDataV1;
     }
@@ -120,6 +125,27 @@ public class TestUtils {
 				.intermediarioIndirizzo("Intermediario Indirizzo")
 				.codiceTrasmissivo("codiceTrasmissivo")
 				.build();
+	}
+	
+	private static it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto dummyCi(String cf, String name) {
+	    var ci = new it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionDto();
+	    ci.setCreditorInstitutionCode(cf);
+	    ci.setBusinessName(name);
+	    ci.setDescription("test");
+	    ci.setEnabled(true);
+	    ci.setPspPayment(true);
+	    ci.setReportingFtp(true);
+	    ci.setReportingZip(true);
+
+	    var addr = new it.gov.pagopa.gen.mbd.client.cache.model.CreditorInstitutionAddressDto();
+	    addr.setCity("city");
+	    addr.setZipCode("00000");
+	    addr.setCountryCode("IT");
+	    addr.setLocation("RM");
+	    addr.setTaxDomicile("via test 1");
+	    ci.setAddress(addr);
+
+	    return ci;
 	}
 
 }
