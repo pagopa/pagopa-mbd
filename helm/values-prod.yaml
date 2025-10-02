@@ -94,11 +94,11 @@ microservice-chart:
     COSMOS_URI: 'https://pagopa-p-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
     COSMOS_ENDPOINT_DISCOVERY_ENABLED: 'true'
     COSMOS_PREFERRED_REGIONS: 'North Europe'
-    CACHE_REFRESH_ENABLED: 'false'
-    CACHE_REFRESH_CRON: '-'
+    CACHE_REFRESH_ENABLED: 'true'
+    CACHE_REFRESH_CRON: '0 10 0 * * *' # 00:10 ogni giorno
     HOME: '/mnt/file-azure/firmatore/SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre/'
     RENDICONTAZIONI_GENERATE_ENABLED: 'true'
-    RENDICONTAZIONI_GENERATE_CRON: '-'
+    RENDICONTAZIONI_GENERATE_CRON: '0 30 0 * * *' # 00:30 ogni giorno
     RENDICONTAZIONI_MAX_ATTEMPTS: '3'
     RENDICONTAZIONI_DELAY: '2000'
     RENDICONTAZIONI_MULTIPLIER: '2.0'

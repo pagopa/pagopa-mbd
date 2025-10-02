@@ -142,6 +142,7 @@ microservice-chart:
 runflussi-cron: # >>> CRON #1 runflussi.sh
   namespace: "nodo"
   schedule: "0 2 * * *"
+  suspend: true
   timeZone: "Europe/Rome"
   successfulJobsHistoryLimit: "1"
   image:
@@ -198,6 +199,7 @@ runflussi-cron: # >>> CRON #1 runflussi.sh
 renametransfer-cron: # >>> CRON #2 renametransfer.sh
   namespace: "nodo"
   schedule: "0 3 * * *"
+  suspend: true
   timeZone: "Europe/Rome"
   successfulJobsHistoryLimit: "1"
   image:
@@ -258,6 +260,7 @@ renametransfer-cron: # >>> CRON #2 renametransfer.sh
 getelabricevute-cron: # >>> CRON #3 get-elab-ricevute.sh
   namespace: "nodo"
   schedule: "30 09 * * *"
+  suspend: true
   timeZone: "Europe/Rome"
   successfulJobsHistoryLimit: "1"
   image:
