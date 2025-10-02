@@ -141,8 +141,11 @@ class GenerateReportingServiceTest {
                             assertNotNull(result.getResponse());
                         });
         
+        
         verify(bizEventRepository, times(1))
         .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
+        verify(bizEventRepository, never())
+        .getPaWithMbdAndCount(anyLong(), anyLong());
     }
     
     @Test
