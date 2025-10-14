@@ -26,9 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,7 +84,17 @@ public class GenerateReportingService {
 
   public void execute(LocalDate date, String[] organizationsRequest) throws MBDReportingException {
     UUID executionId = UUID.randomUUID();
-    log.info("[{}] Start MBD reporting generation for date {}", executionId, date);
+    ZoneId zone = ZoneId.systemDefault();
+    
+    LocalDate requestedDate = (date != null) ? date : LocalDate.now(zone);
+    
+    // If the requested date is "today", I process yesterday; otherwise I process the requested date
+    LocalDate processingDate = requestedDate.isEqual(LocalDate.now(zone))
+            ? requestedDate.minusDays(1)
+            : requestedDate;
+    
+    log.info("[{}] Start MBD reporting generation: requestedDate={}, processingDate={}",
+            executionId, requestedDate, processingDate);
     
     File dir = new File(fileSystemPath);
     if (!dir.exists()) {
@@ -104,8 +112,8 @@ public class GenerateReportingService {
       // long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).toEpochMilli();
 
       // c._ts in Cosmos DB biz event is a UNIX timestamp in seconds
-      long dateFrom = date.atStartOfDay(ZoneId.systemDefault()).toInstant().getEpochSecond();
-      long dateTo = date.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC).getEpochSecond();
+        long dateFrom = processingDate.atStartOfDay(zone).toEpochSecond();
+        long dateTo   = processingDate.plusDays(1).atStartOfDay(zone).minusSeconds(1).toEpochSecond();
 
       CacheInstitutionData cacheInstitutionData = loadInstitutionData();
 
@@ -437,11 +445,28 @@ public class GenerateReportingService {
 
   @Async
   public void recovery(LocalDate from, LocalDate to, String[] organizations) throws MBDReportingException {
-    log.info("MBD reporting recovery from {} to {}", from, to);
-    LocalDate date = from;
-    do {
-      execute(date, organizations);
-      date = date.plusDays(1);
-    } while (date.isBefore(to));
+      log.info("MBD reporting recovery from {} to {}", from, to);
+      if (from == null || to == null || from.isAfter(to)) {
+          log.warn("Invalid range: from={} to={}. No processing.", from, to);
+          return;
+      }
+
+      ZoneId zone = ZoneId.systemDefault();
+      LocalDate today = LocalDate.now(zone);
+
+      // Maintains processing order and avoids duplicates
+      java.util.Set<LocalDate> processingDates = new java.util.LinkedHashSet<>();
+
+      for (LocalDate d = from; !d.isAfter(to); d = d.plusDays(1)) {
+          // Same logic as execute method: if d is today, process yesterday
+          LocalDate pd = d.isEqual(today) ? d.minusDays(1) : d;
+          processingDates.add(pd);
+      }
+
+      for (LocalDate pd : processingDates) {
+          // The execute method is called directly with the date actually to be processed
+          execute(pd, organizations);
+      }
   }
+
 }
