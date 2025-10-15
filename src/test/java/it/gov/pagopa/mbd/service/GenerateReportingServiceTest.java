@@ -231,4 +231,43 @@ class GenerateReportingServiceTest {
                 .forEach(File::delete);
         }
     }
+    
+    @Test
+    void recoveryShouldSkipWhenFromAfterTo() throws Exception {
+        org.springframework.test.util.ReflectionTestUtils.setField(
+            configCacheService, "configData", TestUtils.configData());
+
+        // When: from > to
+        mvc.perform(
+                MockMvcRequestBuilders.patch("/recover")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .params(CollectionUtils.toMultiValueMap(
+                        Map.of("from", List.of("2024-01-03"), "to", List.of("2024-01-02"))
+                    ))
+            )
+            .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        verify(bizEventRepository, timeout(500).times(0))
+            .getPaWithMbdAndCount(anyLong(), anyLong());
+        verify(bizEventRepository, timeout(500).times(0))
+            .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
+    }
+
+    @Test
+    void recoveryShouldSkipWhenFromIsNull() {
+        // When: from = null
+        assertDoesNotThrow(() ->
+            generateReportingService.recovery(
+                null,                     
+                java.time.LocalDate.of(2024, 1, 02),
+                null                      // organizations
+            )
+        );
+
+        verify(bizEventRepository, timeout(500).times(0))
+            .getPaWithMbdAndCount(anyLong(), anyLong());
+        verify(bizEventRepository, timeout(500).times(0))
+            .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
+    }
 }
