@@ -70,8 +70,8 @@ class GenerateReportingServiceTest {
 
     @Test
     void generateForAllEc() throws Exception {
-    	
-    	org.springframework.test.util.ReflectionTestUtils.setField(configCacheService, "configData", TestUtils.configData());
+        
+        org.springframework.test.util.ReflectionTestUtils.setField(configCacheService, "configData", TestUtils.configData());
 
         when(bizEventRepository.getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class))).thenReturn(getBizEvent());
         when(bizEventRepository.getPaWithMbdAndCount(anyLong(), anyLong())).thenReturn(List.of(PaMbdCount.builder().fiscalCodePA("0123456789").mbdCount(1).build()));
@@ -99,10 +99,10 @@ class GenerateReportingServiceTest {
                             assertNotNull(result.getResponse());
                         });
 
-        verify(bizEventRepository, times(1))
+        verify(bizEventRepository, timeout(2000).times(2))
         .getPaWithMbdAndCount(anyLong(), anyLong());
-        
-        verify(bizEventRepository, never())
+
+        verify(bizEventRepository, timeout(2000).atLeastOnce())
         .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
         
         Files.walk(tempDir)
@@ -142,10 +142,11 @@ class GenerateReportingServiceTest {
                         });
         
         
-        verify(bizEventRepository, times(1))
-        .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
-        verify(bizEventRepository, never())
+        verify(bizEventRepository, timeout(2000).atLeastOnce())
         .getPaWithMbdAndCount(anyLong(), anyLong());
+
+        verify(bizEventRepository, timeout(2000).times(2))
+        .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), eq("0123456789"));
     }
     
     @Test
@@ -173,13 +174,13 @@ class GenerateReportingServiceTest {
 
         // Execute the method and expect MBDRetryException
         Exception ex = Assertions.assertThrows(
-        		MBDRetryException.class,
-        		() -> generateReportingService.writeReportFile(UUID.randomUUID(),
-        				pa, cacheInstitutionData, now, progressivo, dataInvioFlusso, recordsV,
-        				dateFrom,
-        				dateTo
-        				)
-        		);
+                MBDRetryException.class,
+                () -> generateReportingService.writeReportFile(UUID.randomUUID(),
+                        pa, cacheInstitutionData, now, progressivo, dataInvioFlusso, recordsV,
+                        dateFrom,
+                        dateTo
+                        )
+                );
 
         Assertions.assertTrue(ex.getMessage().contains(expectedMsgPart));
         Assertions.assertTrue(ex.getMessage().contains("Write failed!"));
@@ -229,5 +230,44 @@ class GenerateReportingServiceTest {
                 .map(Path::toFile)
                 .forEach(File::delete);
         }
+    }
+    
+    @Test
+    void recoveryShouldSkipWhenFromAfterTo() throws Exception {
+        org.springframework.test.util.ReflectionTestUtils.setField(
+            configCacheService, "configData", TestUtils.configData());
+
+        // When: from > to
+        mvc.perform(
+                MockMvcRequestBuilders.patch("/recover")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .params(CollectionUtils.toMultiValueMap(
+                        Map.of("from", List.of("2024-01-03"), "to", List.of("2024-01-02"))
+                    ))
+            )
+            .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+
+        verify(bizEventRepository, timeout(500).times(0))
+            .getPaWithMbdAndCount(anyLong(), anyLong());
+        verify(bizEventRepository, timeout(500).times(0))
+            .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
+    }
+
+    @Test
+    void recoveryShouldSkipWhenFromIsNull() {
+        // When: from = null
+        assertDoesNotThrow(() ->
+            generateReportingService.recovery(
+                null,                     
+                java.time.LocalDate.of(2024, 1, 02),
+                null                      // organizations
+            )
+        );
+
+        verify(bizEventRepository, timeout(500).times(0))
+            .getPaWithMbdAndCount(anyLong(), anyLong());
+        verify(bizEventRepository, timeout(500).times(0))
+            .getBizEventsByDateFromAndDateToAndEC(anyLong(), anyLong(), nullable(String.class));
     }
 }
