@@ -158,7 +158,7 @@ public class GenerateReportingService {
         processData(executionId, dateFrom, dateTo, dateFormat, pa, cacheInstitutionData, progressivo);
       }
       
-      log.info("[{}] End MBD reporting generation for date {}", executionId, date);
+      log.info("[{}] End MBD reporting generation for date {}", executionId, processingDate);
 
     } catch (Exception e) {
         log.error("[{}] General error while generating MBD reports: {}", executionId, e.getMessage(), e);

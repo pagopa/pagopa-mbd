@@ -98,7 +98,7 @@ microservice-chart:
     CACHE_REFRESH_CRON: '0 10 0 * * *' # 00:10 ogni giorno
     HOME: '/mnt/file-azure/firmatore/SID-Flussi-e-bollo/SID_cartelle/file_da_predisporre/'
     RENDICONTAZIONI_GENERATE_ENABLED: 'true'
-    RENDICONTAZIONI_GENERATE_CRON: '0 30 0 * * *' # 00:30 ogni giorno
+    RENDICONTAZIONI_GENERATE_CRON: '0 0 23 * * ?' # to start 00:30 everey day (23:00 previous day) + 2h
     RENDICONTAZIONI_MAX_ATTEMPTS: '3'
     RENDICONTAZIONI_DELAY: '2000'
     RENDICONTAZIONI_MULTIPLIER: '2.0'
