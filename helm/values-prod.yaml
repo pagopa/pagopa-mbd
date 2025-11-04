@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-mbd
-    tag: "0.2.13"
+    tag: "0.2.13-1-fix-jdk-image-tag"
     pullPolicy: Always
   livenessProbe:
     handlerType: tcpSocket
