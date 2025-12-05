@@ -107,14 +107,14 @@ log:
         pretty: 'true'
 logging:
   level:
-    com.azure.cosmos.implementation.SqlQuerySpecLogger: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type: TRACE
-    org.springframework.web: DEBUG
-    root: ${DEFAULT_LOGGING_LEVEL:INFO}
+    com.azure.cosmos.implementation.SqlQuerySpecLogger: ${COSMOS_LOG_LEVEL:INFO}
+    org.hibernate.SQL: ${HIBERNATE_LOG_LEVEL:INFO}
+    org.hibernate.type: ${HIBERNATE_LOG_LEVEL:INFO}
+    org.springframework.web: ${DEFAULT_LOG_LEVEL:INFO}
+    root: ${APP_LOG_LEVEL:INFO}
     it.gov.pagopa.mbd.util:
-      interceptor.AppServerLoggingInterceptor: DEBUG
-      client.apiconfigcache.ApiConfigCacheClientLoggingInterceptor: DEBUG
+      interceptor.AppServerLoggingInterceptor: ${DEFAULT_LOG_LEVEL:INFO}
+      client.apiconfigcache.ApiConfigCacheClientLoggingInterceptor: ${DEFAULT_LOG_LEVEL:INFO}
 otel:
   service:
     name: ${OTEL_SERVICE_NAME:pagopa-wisp-converter}
