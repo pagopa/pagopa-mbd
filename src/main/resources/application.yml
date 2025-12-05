@@ -18,6 +18,12 @@ management:
     health:
       probes:
         enabled: 'true'
+  metrics:
+    export:
+      console:
+        enabled: false
+      logging:
+        enabled: false
 info:
   application:
     name: 'Flussi MBD'
@@ -74,7 +80,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
 springdoc:
   writer-with-order-by-keys: 'true'
   writer-with-default-pretty-printer: 'true'
@@ -107,7 +113,7 @@ log:
         pretty: 'true'
 logging:
   level:
-    com.azure.cosmos.implementation.SqlQuerySpecLogger: ${COSMOS_LOG_LEVEL:INFO}
+    com.azure.cosmos: ${COSMOS_LOG_LEVEL:WARN}
     org.hibernate.SQL: ${HIBERNATE_LOG_LEVEL:INFO}
     org.hibernate.type: ${HIBERNATE_LOG_LEVEL:INFO}
     org.springframework.web: ${DEFAULT_LOG_LEVEL:INFO}
