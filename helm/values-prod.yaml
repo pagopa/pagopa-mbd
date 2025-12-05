@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: ""
   image:
     repository: ghcr.io/pagopa/pagopa-mbd
-    tag: "0.2.13"
+    tag: "0.2.13-2-PIDM-1277"
     pullPolicy: Always
   livenessProbe:
     handlerType: tcpSocket
@@ -88,8 +88,10 @@ microservice-chart:
     APP_ENVIRONMENT: "prod"
     WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
     ENV: 'prod'
-    APP_LOGGING_LEVEL: 'INFO'
-    DEFAULT_LOGGING_LEVEL: 'INFO'
+    DEFAULT_LOG_LEVEL: 'ERROR'
+    APP_LOG_LEVEL: 'INFO'
+    HIBERNATE_LOG_LEVEL: 'ERROR'
+    COSMOS_LOG_LEVEL: 'ERROR'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
     COSMOS_URI: 'https://pagopa-p-weu-bizevents-ds-cosmos-account.documents.azure.com:443/'
     COSMOS_ENDPOINT_DISCOVERY_ENABLED: 'true'
