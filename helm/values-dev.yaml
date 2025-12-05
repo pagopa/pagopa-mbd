@@ -87,7 +87,7 @@ microservice-chart:
     APP_ENVIRONMENT: "dev"
     WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
     ENV: 'dev'
-    DEFAULT_LOG_LEVEL: 'ERROR'
+    DEFAULT_LOG_LEVEL: 'INFO'
     APP_LOG_LEVEL: 'INFO'
     HIBERNATE_LOG_LEVEL: 'ERROR'
     COSMOS_LOG_LEVEL: 'ERROR'
