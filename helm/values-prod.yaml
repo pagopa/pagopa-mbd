@@ -149,7 +149,7 @@ runflussi-cron: # >>> CRON #1 runflussi.sh
   successfulJobsHistoryLimit: "1"
   image:
     repository: openjdk
-    tag: 8-jdk
+    tag: 8u102-jdk
     pullPolicy: Always
   command: ["/bin/bash", "-c", "/mnt/file-azure/firmatore/scripts/runflussi.sh"]
   resources:
@@ -205,7 +205,7 @@ renametransfer-cron: # >>> CRON #2 renametransfer.sh
   successfulJobsHistoryLimit: "1"
   image:
     repository: openjdk
-    tag: 8-jdk
+    tag: 8u102-jdk
     pullPolicy: Always
   command: ["/bin/bash", "-c", "/mnt/file-azure/firmatore/scripts/renametransfer.sh"]
   resources:
@@ -265,7 +265,7 @@ getelabricevute-cron: # >>> CRON #3 get-elab-ricevute.sh
   successfulJobsHistoryLimit: "1"
   image:
     repository: openjdk
-    tag: 8-jdk
+    tag: 8u102-jdk
     pullPolicy: Always
   command: ["/bin/bash", "-c", "/mnt/file-azure/firmatore/scripts/get-elab-ricevute.sh"]
   resources:
