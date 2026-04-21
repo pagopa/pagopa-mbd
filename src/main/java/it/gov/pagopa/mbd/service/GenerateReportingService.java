@@ -445,28 +445,47 @@ public class GenerateReportingService {
 
   @Async
   public void recovery(LocalDate from, LocalDate to, String[] organizations) throws MBDReportingException {
-      log.info("MBD reporting recovery from {} to {}", from, to);
-      if (from == null || to == null || from.isAfter(to)) {
-          log.warn("Invalid range: from={} to={}. No processing.", from, to);
-          return;
-      }
+      log.info("Starting MBD reporting recovery: from={}, to={}, organizations={}",
+              from, to, organizations);
 
       ZoneId zone = ZoneId.systemDefault();
       LocalDate today = LocalDate.now(zone);
 
-      // Maintains processing order and avoids duplicates
+      /*
+       * Build the list of actual processing dates.
+       *
+       * Rules:
+       * - the requested range is inclusive on both bounds;
+       * - if a requested date is equal to the current system date, the previous day is processed instead;
+       * - duplicated processing dates are removed while preserving the original processing order.
+       *
+       * Example:
+       * - if today is 2025-06-10 and the requested range is 2025-06-09 -> 2025-06-10,
+       *   both requested dates resolve to 2025-06-09, which is processed only once.
+       */
       java.util.Set<LocalDate> processingDates = new java.util.LinkedHashSet<>();
 
-      for (LocalDate d = from; !d.isAfter(to); d = d.plusDays(1)) {
-          // Same logic as execute method: if d is today, process yesterday
-          LocalDate pd = d.isEqual(today) ? d.minusDays(1) : d;
-          processingDates.add(pd);
+      for (LocalDate requestedDate = from; !requestedDate.isAfter(to); requestedDate = requestedDate.plusDays(1)) {
+          LocalDate processingDate = requestedDate.isEqual(today)
+                  ? requestedDate.minusDays(1)
+                  : requestedDate;
+
+          if (!requestedDate.equals(processingDate)) {
+              log.info("Requested recovery date {} is the current system date. Processing previous day {} instead.",
+                      requestedDate, processingDate);
+          }
+
+          processingDates.add(processingDate);
       }
 
-      for (LocalDate pd : processingDates) {
-          // The execute method is called directly with the date actually to be processed
-          execute(pd, organizations);
+      log.info("Actual MBD reporting recovery processing dates: {}", processingDates);
+
+      for (LocalDate processingDate : processingDates) {
+          log.info("Executing MBD reporting recovery for processingDate={}", processingDate);
+          execute(processingDate, organizations);
       }
+
+      log.info("MBD reporting recovery completed for requested range: from={}, to={}", from, to);
   }
 
 }
