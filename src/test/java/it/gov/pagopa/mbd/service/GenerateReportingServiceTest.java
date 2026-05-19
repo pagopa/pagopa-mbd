@@ -233,7 +233,7 @@ class GenerateReportingServiceTest {
     }
     
     @Test
-    void recoveryShouldSkipWhenFromAfterTo() throws Exception {
+    void recoveryShouldReturnBadRequestWhenFromIsAfterTo() throws Exception {
         org.springframework.test.util.ReflectionTestUtils.setField(
             configCacheService, "configData", TestUtils.configData());
 
@@ -246,7 +246,7 @@ class GenerateReportingServiceTest {
                         Map.of("from", List.of("2024-01-03"), "to", List.of("2024-01-02"))
                     ))
             )
-            .andExpect(MockMvcResultMatchers.status().is2xxSuccessful());
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
         verify(bizEventRepository, timeout(500).times(0))
             .getPaWithMbdAndCount(anyLong(), anyLong());
@@ -255,15 +255,16 @@ class GenerateReportingServiceTest {
     }
 
     @Test
-    void recoveryShouldSkipWhenFromIsNull() {
-        // When: from = null
-        assertDoesNotThrow(() ->
-            generateReportingService.recovery(
-                null,                     
-                java.time.LocalDate.of(2024, 1, 02),
-                null                      // organizations
+    void recoveryShouldReturnBadRequestWhenFromIsMissing() throws Exception {
+        mvc.perform(
+                MockMvcRequestBuilders.patch("/recover")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .params(CollectionUtils.toMultiValueMap(
+                        Map.of("to", List.of("2024-01-02"))
+                    ))
             )
-        );
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
         verify(bizEventRepository, timeout(500).times(0))
             .getPaWithMbdAndCount(anyLong(), anyLong());

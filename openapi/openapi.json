@@ -1,163 +1,183 @@
 {
-  "openapi": "3.0.1",
-  "info": {
-    "description": "A microservice that permits to handle Digital Stamps in pagoPA platform",
-    "termsOfService": "https://www.pagopa.gov.it/",
-    "title": "pagopa-mbd",
-    "version": "0.2.18"
+  "openapi" : "3.0.1",
+  "info" : {
+    "description" : "A microservice that permits to handle Digital Stamps in pagoPA platform",
+    "termsOfService" : "https://www.pagopa.gov.it/",
+    "title" : "pagopa-mbd",
+    "version" : "0.2.18"
   },
-  "servers": [
-    {
-      "url": "http://localhost",
-      "description": "Generated server url"
-    }
-  ],
-  "tags": [
-    {
-      "description": "Application info APIs",
-      "name": "Home"
-    },
-    {
-      "description": "Recover one or more days of unprocessed MBD flows",
-      "name": "Recovery"
-    }
-  ],
-  "paths": {
-    "/info": {
-      "get": {
-        "operationId": "healthCheck",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppInfoResponse"
+  "servers" : [ {
+    "url" : "http://localhost",
+    "description" : "Generated server url"
+  } ],
+  "tags" : [ {
+    "description" : "Application info APIs",
+    "name" : "Home"
+  }, {
+    "description" : "API used to manually recover one or more days of unprocessed MBD flows",
+    "name" : "Recovery"
+  } ],
+  "paths" : {
+    "/info" : {
+      "get" : {
+        "operationId" : "healthCheck",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AppInfoResponse"
                 }
               }
             },
-            "description": "OK.",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+            "description" : "OK.",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "summary": "Return OK if application is started",
-        "tags": [
-          "Home"
-        ]
+        "security" : [ {
+          "ApiKey" : [ ]
+        } ],
+        "summary" : "Return OK if application is started",
+        "tags" : [ "Home" ]
       },
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ]
+      } ]
     },
-    "/recover": {
-      "parameters": [
-        {
-          "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
-          "in": "header",
-          "name": "X-Request-Id",
-          "schema": {
-            "type": "string"
-          }
+    "/recover" : {
+      "parameters" : [ {
+        "description" : "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+        "in" : "header",
+        "name" : "X-Request-Id",
+        "schema" : {
+          "type" : "string"
         }
-      ],
-      "patch": {
-        "operationId": "recover",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "from",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date"
+      } ],
+      "patch" : {
+        "description" : "Starts an asynchronous recovery process to regenerate MBD reporting flows\nfor one or more business days.\n\nDate format:\n- The `from` and `to` request parameters must use the ISO date format `yyyy-MM-dd`.\n- Example: `2025-06-01`.\n\nDate range:\n- The range is inclusive on both bounds.\n- Therefore, `from=2025-06-01&to=2025-06-03` evaluates:\n  `2025-06-01`, `2025-06-02`, and `2025-06-03`.\n\nCurrent-day behavior:\n- If one of the requested dates is equal to the current system date,\n  that date is not processed directly.\n- Instead, the service processes the previous day, consistently with\n  the scheduled generation logic.\n- Example: if today is `2025-06-10` and the request is\n  `from=2025-06-10&to=2025-06-10`, the processed date will be `2025-06-09`.\n\nDuplicate processing dates:\n- Processing dates are deduplicated.\n- Example: if today is `2025-06-10` and the request is\n  `from=2025-06-09&to=2025-06-10`, both requested dates resolve to\n  `2025-06-09`, which is processed only once.\n\nOrganization filter:\n- The `organizations` parameter is optional.\n- If omitted, all creditor institutions available in cache and having MBD data\n  in the requested period are considered.\n- If provided, only the specified creditor institutions are processed,\n  provided that they have MBD data in the requested period.\n- The parameter can be passed multiple times:\n  `organizations=77777777777&organizations=88888888888`.\n\nExamples:\n- Single-day recovery:\n  `PATCH /recover?from=2025-06-01&to=2025-06-01`\n\n- Multi-day recovery:\n  `PATCH /recover?from=2025-06-01&to=2025-06-03`\n\n- Recovery including the current system date:\n  assuming today is `2025-06-10`,\n  `PATCH /recover?from=2025-06-10&to=2025-06-10`\n  processes `2025-06-09`.\n\n- Recovery filtered by creditor institution:\n  `PATCH /recover?from=2025-06-01&to=2025-06-03&organizations=77777777777&organizations=88888888888`\n\nThe API immediately accepts the request.\nThe actual recovery process is executed asynchronously.\nProcessing errors occurring after acceptance are logged by the asynchronous job\nand are not returned in the HTTP response.\n",
+        "operationId" : "recover",
+        "parameters" : [ {
+          "description" : "Start date of the recovery range.\nRequired format: `yyyy-MM-dd`.\nThe lower bound is included in the recovery interval.\n\nIf this date is equal to the current system date, the service\nprocesses the previous day instead of the current day.\n",
+          "example" : "2025-06-01",
+          "in" : "query",
+          "name" : "from",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "description" : "End date of the recovery range.\nRequired format: `yyyy-MM-dd`.\nThe upper bound is included in the recovery interval.\nIt must be greater than or equal to `from`.\n\nIf this date is equal to the current system date, the service\nprocesses the previous day instead of the current day.\n",
+          "example" : "2025-06-03",
+          "in" : "query",
+          "name" : "to",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "description" : "Optional list of creditor institution fiscal codes to process.\nIf omitted, the recovery is executed for all creditor institutions\nhaving MBD data in the requested period.\n\nThe parameter can be provided multiple times in the query string.\n\nExample:\n`organizations=77777777777&organizations=88888888888`\n",
+          "example" : [ "77777777777", "88888888888" ],
+          "in" : "query",
+          "name" : "organizations",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "to",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "date"
-            }
-          },
-          {
-            "in": "query",
-            "name": "organizations",
-            "required": false,
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
+          }
+        } ],
+        "responses" : {
+          "202" : {
+            "description" : "MBD recovery request accepted and scheduled for asynchronous processing",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
               }
             }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Recovery FdR MDB taken",
-            "headers": {
-              "X-Request-Id": {
-                "description": "This header identifies the call",
-                "schema": {
-                  "type": "string"
+          },
+          "400" : {
+            "description" : "Invalid request parameters. Check the date format and the requested range",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Missing or invalid API key",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal error while accepting the recovery request",
+            "headers" : {
+              "X-Request-Id" : {
+                "description" : "This header identifies the call",
+                "schema" : {
+                  "type" : "string"
                 }
               }
             }
           }
         },
-        "security": [
-          {
-            "ApiKey": []
-          }
-        ],
-        "tags": [
-          "Recovery"
-        ]
+        "security" : [ {
+          "ApiKey" : [ ]
+        } ],
+        "summary" : "Start the MBD flows recovery for a date range",
+        "tags" : [ "Recovery" ]
       }
     }
   },
-  "components": {
-    "schemas": {
-      "AppInfoResponse": {
-        "type": "object",
-        "properties": {
-          "environment": {
-            "type": "string"
+  "components" : {
+    "schemas" : {
+      "AppInfoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "environment" : {
+            "type" : "string"
           },
-          "name": {
-            "type": "string"
+          "name" : {
+            "type" : "string"
           },
-          "version": {
-            "type": "string"
+          "version" : {
+            "type" : "string"
           }
         }
       }
     },
-    "securitySchemes": {
-      "ApiKey": {
-        "description": "The API key to access this function app.",
-        "in": "header",
-        "name": "Ocp-Apim-Subscription-Key",
-        "type": "apiKey"
+    "securitySchemes" : {
+      "ApiKey" : {
+        "description" : "The API key to access this function app.",
+        "in" : "header",
+        "name" : "Ocp-Apim-Subscription-Key",
+        "type" : "apiKey"
       }
     }
   }
