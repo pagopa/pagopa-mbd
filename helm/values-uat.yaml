@@ -83,9 +83,8 @@ microservice-chart:
     cooldownPeriod: 50 # seconds
     triggers:
       - type: cpu
+        metricType: Utilization # Allowed types are 'Utilization' or 'AverageValue'
         metadata:
-          # Required
-          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
     JAVA_TOOL_OPTIONS: '-Xmx2560m -Xms1024m -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30' # https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/1494942089/Ottimizzazione+JAVA+OPTIONS+per+Container
