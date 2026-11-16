@@ -114,7 +114,7 @@ microservice-chart:
     MAX_STAMPS_FOR_RECORD_V: "10"
     OTEL_SERVICE_NAME: pagopa-mbd
     OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=dev"
-    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
+    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-scalable-lb-collector.otel.svc.cluster.local:4317"
     OTEL_TRACES_EXPORTER: otlp
     OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
