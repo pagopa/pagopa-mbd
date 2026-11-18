@@ -87,7 +87,7 @@ microservice-chart:
         metadata:
           value: "75"
   envConfig:
-    JAVA_TOOL_OPTIONS: '-Xmx2560m -Xms1024m -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30' # https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/1494942089/Ottimizzazione+JAVA+OPTIONS+per+Container
+    JAVA_TOOL_OPTIONS: '-Xmx2560m -Xms1024m -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -XX:-UseBASE64Intrinsics' # https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/1494942089/Ottimizzazione+JAVA+OPTIONS+per+Container
     APP_NAME: "pagopambd"
     APP_ENVIRONMENT: "uat"
     WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
