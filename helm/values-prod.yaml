@@ -88,7 +88,7 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    JAVA_TOOL_OPTIONS: '-Xmx2560m -Xms1024m -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30' # https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/1494942089/Ottimizzazione+JAVA+OPTIONS+per+Container
+    JAVA_TOOL_OPTIONS: '-Xmx2560m -Xms1024m -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=30 -XX:-UseBASE64Intrinsics' # https://pagopa.atlassian.net/wiki/spaces/DEVOPS/pages/1494942089/Ottimizzazione+JAVA+OPTIONS+per+Container
     APP_NAME: "pagopambd"
     APP_ENVIRONMENT: "prod"
     WEBSITE_SITE_NAME: 'pagopambd' # required to show cloud role name in application insights
@@ -178,6 +178,7 @@ runflussi-cron: # >>> CRON #1 runflussi.sh
       drop:
         - all
   envConfig:
+    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     BASE_MNT: "/mnt/file-azure/firmatore/"
     FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
   envSecrets:
@@ -235,6 +236,7 @@ renametransfer-cron: # >>> CRON #2 renametransfer.sh
       drop:
         - all
   envConfig:
+    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     BASE_MNT: "/mnt/file-azure/firmatore/"
     FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
     SFTP_USERNAME: "pagopa_pgsg"
@@ -296,6 +298,7 @@ getelabricevute-cron: # >>> CRON #3 get-elab-ricevute.sh
       drop:
         - all
   envConfig:
+    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     BASE_MNT: "/mnt/file-azure/firmatore/"
     FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
     SFTP_USERNAME: "pagopa_pgsg"
