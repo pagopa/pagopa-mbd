@@ -178,7 +178,6 @@ runflussi-cron: # >>> CRON #1 runflussi.sh
       drop:
         - all
   envConfig:
-    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     BASE_MNT: "/mnt/file-azure/firmatore/"
     FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
   envSecrets:
@@ -236,7 +235,6 @@ renametransfer-cron: # >>> CRON #2 renametransfer.sh
       drop:
         - all
   envConfig:
-    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     BASE_MNT: "/mnt/file-azure/firmatore/"
     FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
     SFTP_USERNAME: "pagopa_pgsg"
@@ -298,7 +296,6 @@ getelabricevute-cron: # >>> CRON #3 get-elab-ricevute.sh
       drop:
         - all
   envConfig:
-    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics"
     BASE_MNT: "/mnt/file-azure/firmatore/"
     FLUSSI_DIR: "/mnt/file-azure/firmatore/SID-Flussi-e-bollo"
     SFTP_USERNAME: "pagopa_pgsg"
